@@ -5,6 +5,7 @@ from lib2to3.btm_utils import tokens
 import pygame
 import random
 import config
+from Button import Button
 from sprite_loader import load_logos_from_spritesheet
 from tile import Tile
 
@@ -14,6 +15,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
 GOLD = (255, 215, 0)
+DARK_GRAY = (150, 150, 150)
 
 # Инициализация групп предприятий
 automotive_group = "Автомобильное производство"
@@ -56,6 +58,12 @@ class Game:
         # Шрифты
         # pygame.font.init()
         self.FONT = None
+        self.button_font = None
+
+        # Создание кнопки
+        self.next_turn_button = None
+
+        # clock = pygame.time.Clock()
 
         # Игровые параметры
         self.player_balance = [1000, 1000]  # Балансы игроков
@@ -64,6 +72,10 @@ class Game:
         self.player_positions = {}
         self.player_tokens = {}
         self.tiles = []
+
+        # Игровые переменные
+        self.turn = 1
+        self.next_turn = False
 
         # ?
         # self.player_group = pygame.sprite.GroupSingle()
@@ -90,18 +102,26 @@ class Game:
 
         # Шрифты
         self.FONT = pygame.font.Font(None, 36)
+        self.button_font = pygame.font.SysFont("Arial", 24)
+
+        # Создание кнопки
+        self.next_turn_button = Button(300, 500, 200, 50, "Следующий ход", self.button_font, GRAY, DARK_GRAY, BLACK)
 
         # Игровые параметры
         self.player_balance = [1000, 1000]  # Балансы игроков
         self.current_player = 0  # Индекс текущего игрока
+
+        # Игровые переменные
+        self.turn = 1
+        self.next_turn = False
 
         self.owner_colors = {
             0: (255, 0, 0),
             1: (0, 255, 0),
         }
         self.player_positions = {
-            0: 1,
-            1: 2,
+            0: 0,
+            1: 0,
         }
         self.player_tokens = {
             0: tokens[0],
@@ -156,7 +176,10 @@ class Game:
 
     # Обработка хода
     def handle_turn(self, player):
+        self.turn += 1
+
         player_pos = random.randint(0, 9)  # Игрок "попадает" на случайную клетку
+        self.player_positions[player] = player_pos
         if not self.tiles[player_pos].is_owned():
             # Клетка свободна, предложение купить
             if self.player_balance[player] >= self.tiles[player_pos].price:
@@ -172,6 +195,8 @@ class Game:
 
         # Переход хода
         self.current_player = (player + 1) % 2
+
+        self.next_turn = False
 
     def get_events(self):
         for event in pygame.event.get():
@@ -191,9 +216,21 @@ class Game:
             # if events.keys.is_key_pressed(pygame.K_ESCAPE):
             #     self.stop()
 
+            # Проверка нажатия кнопки мышью
+            if self.next_turn_button.is_clicked(event):
+                self.next_turn = True
+
+            # Проверка нажатия клавиши (например, пробел для следующего хода)
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                self.next_turn = True
+
     def update(self):
         # Логика игры
-        if pygame.key.get_pressed()[pygame.K_SPACE]:
+        # if pygame.key.get_pressed()[pygame.K_SPACE]:
+        #     self.handle_turn(self.current_player)
+
+        # Логика для следующего хода
+        if self.next_turn:
             self.handle_turn(self.current_player)
 
     def draw(self):
@@ -208,8 +245,12 @@ class Game:
         player2_text = self.FONT.render(f"Игрок 2: {self.player_balance[1]}₽", True, BLACK)
         self.screen.blit(player2_text, (50, 100))
 
-        # self.screen.fill(self.background_color)
-        # self.sprites.draw(self.screen)
+        # Отрисовка кнопки
+        self.next_turn_button.draw(self.screen)
+
+        # Отображение текущего хода
+        turn_text = self.FONT.render(f"Ход: {self.turn}", True, BLACK)
+        self.screen.blit(turn_text, (350, 450))
 
     def __call__(self, *args, **kwargs):
         self.load()
@@ -224,6 +265,8 @@ class Game:
 
             # Обновление экрана
             pygame.display.flip()
+
+            # clock.tick(30)
 
         self.quit()
 
