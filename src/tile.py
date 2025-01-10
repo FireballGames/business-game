@@ -76,7 +76,7 @@ class Tile:
 
     ####
 
-    def draw_tile(self, screen, position, owner_colors, group_colors, player_positions, player_tokens):
+    def draw_tile(self, screen, position, offset, owner_colors, group_colors, player_positions, player_tokens):
         """
         Отображает клетку на экране в изометрическом стиле.
 
@@ -88,14 +88,16 @@ class Tile:
         :param player_tokens: Словарь {player_id: token_image}, изображения фишек игроков.
         """
 
+        offset_x, offset_y = offset
+
         # Координаты изометрической клетки
         x, y = position
         iso_x = x - y
         iso_y = x + y
 
         # Центр клетки
-        center_x = (500 - self.TILE_WIDTH // 2) + iso_x * self.TILE_WIDTH // 2
-        center_y = 100 + iso_y * self.TILE_HEIGHT // 2
+        center_x = (offset_x - self.TILE_WIDTH // 2) + iso_x * self.TILE_WIDTH // 2
+        center_y = offset_y + iso_y * self.TILE_HEIGHT // 2
 
         # Цвет группы клетки
         group_color = group_colors.get(self.group, (200, 200, 200))  # Если группа не найдена, серый цвет
