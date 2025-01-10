@@ -122,8 +122,8 @@ class Tile:
         if self.logo:
             # Здесь будет код для отрисовки логотипа на координатах (x, y).
             # logo_rect = self.logo.get_rect(center=(center_x, center_y))
-            logo_rect = (center_x - self.TILE_WIDTH // 4, center_y - self.TILE_HEIGHT // 2)
-            screen.blit(self.logo, logo_rect, (0, 0, 64, 64))  # Псевдокод для отрисовки
+            logo_rect = (center_x - self.TILE_WIDTH // 2, center_y - self.TILE_HEIGHT * 2)
+            screen.blit(self.logo, logo_rect)  # Псевдокод для отрисовки
         else:
             # Если логотипа нет, отображаем название
             label = self.font.render(self.name, True, BLACK)
@@ -136,6 +136,6 @@ class Tile:
         for player_id, tile_id in player_positions.items():
             if tile_id == self.tile_id:
                 # Координаты для фишки
-                token_x = center_x + self.TILE_WIDTH // 4 - 128
-                token_y = center_y + self.TILE_HEIGHT // 4 + player_id * 10 - 128
+                token_x = center_x - self.TILE_WIDTH // 2  # center_x + self.TILE_WIDTH // 4
+                token_y = center_y + self.TILE_HEIGHT // 2 - 128  # center_y + self.TILE_HEIGHT // 4 + player_id * 10
                 screen.blit(player_tokens[player_id], (token_x, token_y))

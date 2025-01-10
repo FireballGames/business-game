@@ -1,10 +1,11 @@
 #! /usr/bin/python
 import logging
-from lib2to3.pgen2.tokenize import group
+from lib2to3.btm_utils import tokens
 
 import pygame
 import random
 import config
+from sprite_loader import load_logos_from_spritesheet
 from tile import Tile
 
 
@@ -13,7 +14,6 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
 GOLD = (255, 215, 0)
-
 
 # Инициализация групп предприятий
 automotive_group = "Автомобильное производство"
@@ -25,6 +25,14 @@ group_colors = {
     hotel_group: (255, 0, 255),
     grocery_group: (255, 255, 0),
 }
+
+# Параметры спрайтлиста
+LOGO_SPRITESHEET_PATH = "../res/logo_spritesheet.png"  # Путь к спрайтлисту
+PLAYER_SPRITESHEET_PATH = "../res/player_spritesheet.png"  # Путь к спрайтлисту
+TILE_WIDTH = 128  # Ширина одного логотипа
+TILE_HEIGHT = 128  # Высота одного логотипа
+ROWS = 4  # Количество строк
+COLS = 4  # Количество колонок
 
 
 class Game:
@@ -74,6 +82,12 @@ class Game:
         """Load game data before start."""
         logging.debug("Загрузка игровых данных")
 
+        # Загрузка логотипов
+        logos = load_logos_from_spritesheet(LOGO_SPRITESHEET_PATH, TILE_WIDTH, TILE_HEIGHT, ROWS, COLS)
+
+        # Загрузка фишек
+        tokens = load_logos_from_spritesheet(PLAYER_SPRITESHEET_PATH, TILE_WIDTH, TILE_HEIGHT, ROWS, COLS)
+
         # Шрифты
         self.FONT = pygame.font.Font(None, 36)
 
@@ -90,13 +104,13 @@ class Game:
             1: 2,
         }
         self.player_tokens = {
-            0: pygame.image.load("../res/player1.png"),
-            1: pygame.image.load("../res/player2.png"),
+            0: tokens[0],
+            1: tokens[1],
         }
 
         # Пример создания предприятий с логотипами
-        car_factory_logo = pygame.image.load("../res/car_factory_logo.png")  # Пример логотипа
-        hotel_logo = pygame.image.load("../res/hotel_logo.png")  # Пример логотипа
+        car_factory_logo = logos[0]
+        hotel_logo = logos[1]
 
         # Создаем список клеток для игрового поля
         # properties = [None] * 10  # Клетки поля
