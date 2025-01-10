@@ -80,6 +80,7 @@ class Tile:
         """
         Отображает клетку на экране в изометрическом стиле.
 
+        :param offset:
         :param screen: Экран для отображения.
         :param position: Координаты клетки (x, y).
         :param owner_colors: Словарь {owner_id: color}, цвета для владельцев.

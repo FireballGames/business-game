@@ -1,12 +1,10 @@
 #! /usr/bin/python
 import logging
-from lib2to3.btm_utils import tokens
-
 import pygame
 import random
 import config
 from Button import Button
-from buy_window import show_buy_window, BuyWindow
+from buy_window import BuyWindow
 from sprite_loader import load_logos_from_spritesheet
 from tile import Tile
 

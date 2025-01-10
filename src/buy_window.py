@@ -71,32 +71,3 @@ class BuyWindow:
         # Рисуем кнопки
         self.yes_button.draw(screen)
         self.no_button.draw(screen)
-
-
-def show_buy_window(screen, font, enterprise):
-    """
-    Отображает окно с предложением купить предприятие.
-
-    :param screen: Экран для отображения.
-    :param font: Шрифт текста.
-    :param enterprise: Предприятие.
-    :return: True, если игрок соглашается на покупку, иначе False.
-    """
-    def on_yes(target):
-        print("Yes")
-
-    window = BuyWindow(screen, font, enterprise, on_yes)
-
-    while window.visible:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
-
-            window.update(event)
-
-        window.draw(screen)
-
-        pygame.display.flip()
-
-    return window.result
