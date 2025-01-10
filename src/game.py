@@ -1,5 +1,7 @@
 #! /usr/bin/python
 import logging
+from lib2to3.pgen2.tokenize import group
+
 import pygame
 import random
 import config
@@ -11,6 +13,18 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
 GOLD = (255, 215, 0)
+
+
+# Инициализация групп предприятий
+automotive_group = "Автомобильное производство"
+hotel_group = "Гостиницы"
+grocery_group = "Магазины продуктов"
+
+group_colors = {
+    automotive_group: (0, 255, 255),
+    hotel_group: (255, 0, 255),
+    grocery_group: (255, 255, 0),
+}
 
 
 class Game:
@@ -38,6 +52,9 @@ class Game:
         # Игровые параметры
         self.player_balance = [1000, 1000]  # Балансы игроков
         self.current_player = 0  # Индекс текущего игрока
+        self.owner_colors = {}
+        self.player_positions = {}
+        self.player_tokens = {}
         self.tiles = []
 
         # ?
@@ -64,6 +81,23 @@ class Game:
         self.player_balance = [1000, 1000]  # Балансы игроков
         self.current_player = 0  # Индекс текущего игрока
 
+        self.owner_colors = {
+            0: (255, 0, 0),
+            1: (0, 255, 0),
+        }
+        self.player_positions = {
+            0: 1,
+            1: 2,
+        }
+        self.player_tokens = {
+            0: pygame.image.load("../res/player1.png"),
+            1: pygame.image.load("../res/player2.png"),
+        }
+
+        # Пример создания предприятий с логотипами
+        car_factory_logo = pygame.image.load("../res/car_factory_logo.png")  # Пример логотипа
+        hotel_logo = pygame.image.load("../res/hotel_logo.png")  # Пример логотипа
+
         # Создаем список клеток для игрового поля
         # properties = [None] * 10  # Клетки поля
         # property_prices = [random.randint(100, 300) for _ in range(10)]  # Цены на предприятия
@@ -74,9 +108,9 @@ class Game:
             Tile(2, "Тюрьма", 0, 0, tile_type="jail"),  # Тюрьма
             Tile(3, "Аптека", 150, 15),  # Обычная клетка предприятия
             Tile(4, "Событие", 0, 0, tile_type="event"),  # Событие
-            Tile(5, "Фабрика", 200, 20),  # Обычная клетка предприятия
-            Tile(6, "Казино", 0, 0, tile_type="casino"),  # Казино
-            Tile(7, "Тюрьма", 0, 0, tile_type="jail"),  # Тюрьма
+            Tile(5, "Автозавод", 500, 50, group=automotive_group, logo=car_factory_logo),
+            Tile(6, "Гостиница", 300, 30, group=hotel_group, logo=hotel_logo),
+            Tile(7, "Магазин продуктов", 200, 20, group=grocery_group),
             Tile(8, "Аптека", 150, 15),  # Обычная клетка предприятия
             Tile(9, "Событие", 0, 0, tile_type="event"),  # Событие
         ]
@@ -103,13 +137,8 @@ class Game:
 
         for i in range(10):
             x, y = 50 + i * 70, 250
-            color = GRAY if self.tiles[i].is_owned() else GOLD
-            pygame.draw.rect(self.screen, color, (x, y, 60, 60))
-            text = self.FONT.render(f"{self.tiles[i].price}₽", True, BLACK)
-            self.screen.blit(text, (x + 5, y + 5))
-            if self.tiles[i].is_owned():
-                owner_text = self.FONT.render(f"P{self.tiles[i].owner + 1}", True, BLACK)
-                self.screen.blit(owner_text, (x + 5, y + 30))
+            # self.tiles[i].render(self.screen, x, y)
+            self.tiles[i].draw_tile(self.screen, (i, 0), self.owner_colors, group_colors, self.player_positions, self.player_tokens)
 
     # Обработка хода
     def handle_turn(self, player):

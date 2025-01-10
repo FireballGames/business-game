@@ -1,7 +1,16 @@
 import pygame
 
 
+BLACK = (0, 0, 0)
+GRAY = (200, 200, 200)
+GOLD = (255, 215, 0)
+
+
 class Tile:
+    # Размеры клетки
+    TILE_WIDTH = 128
+    TILE_HEIGHT = 64
+
     def __init__(self, tile_id, name, price, rent, tile_type="property", owner=None, logo=None, group=None, **kwargs):
         """
         Инициализация клетки.
@@ -27,6 +36,8 @@ class Tile:
         self.position = None
         self.logo_index = None
 
+        self.font = pygame.font.SysFont("Arial", 16)
+
     def is_owned(self):
         """Проверяет, есть ли у клетки владелец."""
         return self.owner is not None
@@ -45,11 +56,86 @@ class Tile:
 
     def render(self, screen, x, y):
         """Отображение клетки на экране (включая логотип)."""
+        color = GRAY if self.is_owned() else GOLD
+        pygame.draw.rect(screen, color, (x, y, 60, 60))
+
         if self.logo:
             # Здесь будет код для отрисовки логотипа на координатах (x, y).
-            screen.blit(self.logo, (x, y))  # Псевдокод для отрисовки
+            screen.blit(self.logo, (x + 2, y + 2), (0, 0, 56, 56))  # Псевдокод для отрисовки
         else:
             # Отображение текстового названия, если логотип не задан
-            font = pygame.font.SysFont("Arial", 20)
-            label = font.render(self.name, True, (0, 0, 0))
-            screen.blit(label, (x, y))
+            label = self.font.render(self.name, True, BLACK)
+            screen.blit(label, (x + 5, y + 30))
+
+        text = self.font.render(f"{self.price}₽", True, BLACK)
+        screen.blit(text, (x + 5, y + 5))
+
+        if self.is_owned():
+            owner_text = self.font.render(f"P{self.owner + 1}", True, BLACK)
+            screen.blit(owner_text, (x + 30, y + 5))
+
+    ####
+
+    def draw_tile(self, screen, position, owner_colors, group_colors, player_positions, player_tokens):
+        """
+        Отображает клетку на экране в изометрическом стиле.
+
+        :param screen: Экран для отображения.
+        :param position: Координаты клетки (x, y).
+        :param owner_colors: Словарь {owner_id: color}, цвета для владельцев.
+        :param group_colors: Словарь {group_name: color}, цвета для групп.
+        :param player_positions: Список {player_id: tile_id}, позиция игроков.
+        :param player_tokens: Словарь {player_id: token_image}, изображения фишек игроков.
+        """
+
+        # Координаты изометрической клетки
+        x, y = position
+        iso_x = x - y
+        iso_y = x + y
+
+        # Центр клетки
+        center_x = (500 - self.TILE_WIDTH // 2) + iso_x * self.TILE_WIDTH // 2
+        center_y = 100 + iso_y * self.TILE_HEIGHT // 2
+
+        # Цвет группы клетки
+        group_color = group_colors.get(self.group, (200, 200, 200))  # Если группа не найдена, серый цвет
+
+        # Цвет владельца
+        owner_color = GOLD
+        if self.is_owned():
+            owner_color = owner_colors.get(self.owner, (255, 255, 255))  # Если владелец не найден, белый цвет
+
+        # Рисуем клетку как ромб
+        points = [
+            (center_x, center_y - self.TILE_HEIGHT // 2),  # Верх
+            (center_x + self.TILE_WIDTH // 2, center_y),  # Право
+            (center_x, center_y + self.TILE_HEIGHT // 2),  # Низ
+            (center_x - self.TILE_WIDTH // 2, center_y)   # Лево
+        ]
+        pygame.draw.polygon(screen, group_color, points)  # Цвет по группе
+
+        # Отображение владельца
+        pygame.draw.polygon(screen, owner_color, points, 1)  # Чёрная рамка
+        # pygame.draw.circle(screen, owner_color, (center_x, center_y), 10)
+
+        # Логотип предприятия (если есть)
+        if self.logo:
+            # Здесь будет код для отрисовки логотипа на координатах (x, y).
+            # logo_rect = self.logo.get_rect(center=(center_x, center_y))
+            logo_rect = (center_x - self.TILE_WIDTH // 4, center_y - self.TILE_HEIGHT // 2)
+            screen.blit(self.logo, logo_rect, (0, 0, 64, 64))  # Псевдокод для отрисовки
+        else:
+            # Если логотипа нет, отображаем название
+            label = self.font.render(self.name, True, BLACK)
+            screen.blit(label, (center_x - self.TILE_WIDTH // 4, center_y - self.TILE_HEIGHT // 4))
+
+        text = self.font.render(f"{self.price}₽", True, BLACK)
+        screen.blit(text, (center_x - 32, center_y + 8))
+
+        # Отображение фишек игроков, находящихся на клетке
+        for player_id, tile_id in player_positions.items():
+            if tile_id == self.tile_id:
+                # Координаты для фишки
+                token_x = center_x + self.TILE_WIDTH // 4 - 128
+                token_y = center_y + self.TILE_HEIGHT // 4 + player_id * 10 - 128
+                screen.blit(player_tokens[player_id], (token_x, token_y))
