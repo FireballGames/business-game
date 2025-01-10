@@ -6,6 +6,7 @@ import pygame
 import random
 import config
 from Button import Button
+from buy_window import show_buy_window, BuyWindow
 from sprite_loader import load_logos_from_spritesheet
 from tile import Tile
 
@@ -62,12 +63,13 @@ class Game:
 
         # Создание кнопки
         self.next_turn_button = None
+        self.window = None
 
         # clock = pygame.time.Clock()
 
         # Игровые параметры
         self.player_balance = [1000, 1000]  # Балансы игроков
-        self.current_player = 0  # Индекс текущего игрока
+        self.current_player = None  # Индекс текущего игрока
         self.owner_colors = {}
         self.player_positions = {}
         self.player_tokens = {}
@@ -109,7 +111,7 @@ class Game:
 
         # Игровые параметры
         self.player_balance = [1000, 1000]  # Балансы игроков
-        self.current_player = 0  # Индекс текущего игрока
+        self.current_player = None  # Индекс текущего игрока
 
         # Игровые переменные
         self.turn = 1
@@ -174,17 +176,33 @@ class Game:
             # self.tiles[i].render(self.screen, x, y)
             self.tiles[i].draw_tile(self.screen, (i, 0), self.owner_colors, group_colors, self.player_positions, self.player_tokens)
 
+    def on_buy(self):
+        # Игрок покупает предприятие
+        player_pos = self.player_positions[self.current_player]
+        if self.player_balance[self.current_player] >= self.tiles[player_pos].price:
+            self.tiles[player_pos].set_owner(self.current_player)
+            self.player_balance[self.current_player] -= self.tiles[player_pos].price
+
     # Обработка хода
-    def handle_turn(self, player):
+    def handle_turn(self):
+        # Переход хода
+        if self.current_player is None:
+            player = 0
+        else:
+            player = (self.current_player + 1) % 2
+        self.current_player = player
         self.turn += 1
 
         player_pos = random.randint(0, 9)  # Игрок "попадает" на случайную клетку
         self.player_positions[player] = player_pos
         if not self.tiles[player_pos].is_owned():
             # Клетка свободна, предложение купить
-            if self.player_balance[player] >= self.tiles[player_pos].price:
-                self.tiles[player_pos].set_owner(player)
-                self.player_balance[player] -= self.tiles[player_pos].price
+            self.window = BuyWindow(self.screen, self.button_font, self.tiles[player_pos], self.on_buy)
+
+            # Игрок покупает предприятие
+            # if result and self.player_balance[player] >= self.tiles[player_pos].price:
+            #     self.tiles[player_pos].set_owner(player)
+            #     self.player_balance[player] -= self.tiles[player_pos].price
         else:
             # Клетка занята, оплата аренды
             owner = self.tiles[player_pos].owner
@@ -192,9 +210,6 @@ class Game:
                 rent = self.tiles[player_pos].rent
                 self.player_balance[player] -= rent
                 self.player_balance[owner] += rent
-
-        # Переход хода
-        self.current_player = (player + 1) % 2
 
         self.next_turn = False
 
@@ -224,6 +239,9 @@ class Game:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 self.next_turn = True
 
+            if self.window is not None:
+                self.window.update(event)
+
     def update(self):
         # Логика игры
         # if pygame.key.get_pressed()[pygame.K_SPACE]:
@@ -231,7 +249,10 @@ class Game:
 
         # Логика для следующего хода
         if self.next_turn:
-            self.handle_turn(self.current_player)
+            self.handle_turn()
+
+        if self.window is not None and not self.window.visible:
+            self.window = None
 
     def draw(self):
         """Draw game screen."""
@@ -251,6 +272,9 @@ class Game:
         # Отображение текущего хода
         turn_text = self.FONT.render(f"Ход: {self.turn}", True, BLACK)
         self.screen.blit(turn_text, (350, 450))
+
+        if self.window is not None:
+            self.window.draw(self.screen)
 
     def __call__(self, *args, **kwargs):
         self.load()
