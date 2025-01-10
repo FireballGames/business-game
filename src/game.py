@@ -19,7 +19,7 @@ class Game:
         pygame.init()
 
         # Параметры окна
-        self.title = "Имперские магнаты"
+        self.title = "Дѣло"
         self.background_color = WHITE
         # self.delay = delay # ???
         self.width = config.WINDOW_WIDTH
