@@ -56,7 +56,6 @@ class Game:
         pygame.display.set_caption(self.title)
 
         # Шрифты
-        # pygame.font.init()
         self.FONT = None
         self.button_font = None
 
@@ -107,8 +106,8 @@ class Game:
         tokens = load_logos_from_spritesheet(PLAYER_SPRITESHEET_PATH, TILE_WIDTH, TILE_HEIGHT, ROWS, COLS)
 
         # Шрифты
-        self.FONT = pygame.font.Font(None, 36)
-        self.button_font = pygame.font.SysFont("Arial", 24)
+        self.FONT = pygame.font.Font("../res/fonts/OldStandardTT-Regular.ttf", 36)
+        self.button_font = pygame.font.SysFont("../res/fonts/OldStandardTT-Regular.ttf", 24)
 
         # Создание кнопки
         self.next_turn_button = Button(300, 500, 200, 50, "Следующий ход", self.button_font, GRAY, DARK_GRAY, BLACK)

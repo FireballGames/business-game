@@ -36,7 +36,7 @@ class Tile:
         self.position = None
         self.logo_index = None
 
-        self.font = pygame.font.SysFont("Arial", 16)
+        self.font = pygame.font.SysFont("../res/fonts/OldStandardTT-Regular.ttf", 16)
 
     def is_owned(self):
         """Проверяет, есть ли у клетки владелец."""
