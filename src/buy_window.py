@@ -1,12 +1,6 @@
 import pygame
-
+import colors
 from button import Button
-
-# Цвета
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-GRAY = (200, 200, 200)
-DARK_GRAY = (150, 150, 150)
 
 
 class BuyWindow:
@@ -32,9 +26,9 @@ class BuyWindow:
             height=40,
             text="Купить",
             font=font,
-            color=GRAY,
-            hover_color=DARK_GRAY,
-            text_color=BLACK
+            color=colors.GRAY,
+            hover_color=colors.DARK_GRAY,
+            text_color=colors.BLACK
         )
         self.no_button = Button(
             x=self.rect.x + 250,
@@ -43,9 +37,9 @@ class BuyWindow:
             height=40,
             text="Отказаться",
             font=font,
-            color=GRAY,
-            hover_color=DARK_GRAY,
-            text_color=BLACK
+            color=colors.GRAY,
+            hover_color=colors.DARK_GRAY,
+            text_color=colors.BLACK
         )
         self.on_yes = on_yes
         self.visible = True
@@ -60,11 +54,11 @@ class BuyWindow:
 
     def draw(self, screen):
         # Рисуем окно
-        pygame.draw.rect(screen, WHITE, self.rect)
-        pygame.draw.rect(screen, BLACK, self.rect, 2)
+        pygame.draw.rect(screen, colors.WHITE, self.rect)
+        pygame.draw.rect(screen, colors.BLACK, self.rect, 2)
 
         # Текст с названием предприятия и ценой
-        title_text = self.font.render(f"Купить {self.enterprise.name} за {self.enterprise.price}?", True, BLACK)
+        title_text = self.font.render(f"Купить {self.enterprise.name} за {self.enterprise.price}?", True, colors.BLACK)
         title_rect = title_text.get_rect(center=(self.rect.centerx, self.rect.y + 50))
         screen.blit(title_text, title_rect)
 

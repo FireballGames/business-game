@@ -2,31 +2,15 @@
 import logging
 import pygame
 import random
+import colors
 import config
+import groups
 from button import Button
 from buy_window import BuyWindow
 from player import Player
 from sprite_loader import load_logos, load_tokens
 from tile import Tile
 
-
-# Цвета
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-GRAY = (200, 200, 200)
-GOLD = (255, 215, 0)
-DARK_GRAY = (150, 150, 150)
-
-# Инициализация групп предприятий
-automotive_group = "Автомобильное производство"
-hotel_group = "Гостиницы"
-grocery_group = "Магазины продуктов"
-
-group_colors = {
-    automotive_group: (0, 255, 255),
-    hotel_group: (255, 0, 255),
-    grocery_group: (255, 255, 0),
-}
 
 class Game:
     def __init__(self):
@@ -35,7 +19,7 @@ class Game:
 
         # Параметры окна
         self.title = "Дѣло"
-        self.background_color = WHITE
+        self.background_color = colors.WHITE
         # self.delay = delay # ???
         self.width = config.WINDOW_WIDTH
         self.height = config.WINDOW_HEIGHT
@@ -97,11 +81,11 @@ class Game:
         tokens = load_tokens()
 
         # Шрифты
-        self.FONT = pygame.font.Font("../res/fonts/OldStandardTT-Regular.ttf", 36)
-        self.button_font = pygame.font.SysFont("../res/fonts/OldStandardTT-Regular.ttf", 24)
+        self.FONT = pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 36)
+        self.button_font = pygame.font.SysFont("res/fonts/OldStandardTT-Regular.ttf", 24)
 
         # Создание кнопки
-        self.next_turn_button = Button(300, 500, 200, 50, "Следующий ход", self.button_font, GRAY, DARK_GRAY, BLACK)
+        self.next_turn_button = Button(300, 500, 200, 50, "Следующий ход", self.button_font, colors.GRAY, colors.DARK_GRAY, colors.BLACK)
 
         # Игровые параметры
         self.players = [
@@ -126,9 +110,9 @@ class Game:
             Tile(2, "Тюрьма", 0, 0, tile_type="jail"),  # Тюрьма
             Tile(3, "Аптека", 150, 15),  # Обычная клетка предприятия
             Tile(4, "Событие", 0, 0, tile_type="event"),  # Событие
-            Tile(5, "Автозавод", 500, 50, group=automotive_group, logo=car_factory_logo),
-            Tile(6, "Гостиница", 300, 30, group=hotel_group, logo=hotel_logo),
-            Tile(7, "Магазин продуктов", 200, 20, group=grocery_group),
+            Tile(5, "Автозавод", 500, 50, group=groups.AutomotiveGroup, logo=car_factory_logo),
+            Tile(6, "Гостиница", 300, 30, group=groups.HotelGroup, logo=hotel_logo),
+            Tile(7, "Магазин продуктов", 200, 20, group=groups.GroceryGroup),
             Tile(8, "Аптека", 150, 15),  # Обычная клетка предприятия
             Tile(9, "Событие", 0, 0, tile_type="event"),  # Событие
         ]
@@ -157,7 +141,7 @@ class Game:
             # x, y = 50 + i * 70, 250
             # self.tiles[i].render(self.screen, x, y)
             offset = self.field_offset_x, self.field_offset_y
-            self.tiles[i].draw_tile(self.screen, (i, 0), offset, group_colors, self.players)
+            self.tiles[i].draw_tile(self.screen, (i, 0), offset, self.players)
 
     def on_buy(self):
         # Игрок покупает предприятие
@@ -259,17 +243,17 @@ class Game:
         self.draw_board()
 
         # Отображение баланса
-        player1_text = self.FONT.render(f"Игрок 1: {self.players[0].balance}₽", True, BLACK)
+        player1_text = self.FONT.render(f"Игрок 1: {self.players[0].balance}₽", True, colors.BLACK)
         self.screen.blit(player1_text, (50, 50))
 
-        player2_text = self.FONT.render(f"Игрок 2: {self.players[1].balance}₽", True, BLACK)
+        player2_text = self.FONT.render(f"Игрок 2: {self.players[1].balance}₽", True, colors.BLACK)
         self.screen.blit(player2_text, (50, 100))
 
         # Отрисовка кнопки
         self.next_turn_button.draw(self.screen)
 
         # Отображение текущего хода
-        turn_text = self.FONT.render(f"Ход: {self.turn}", True, BLACK)
+        turn_text = self.FONT.render(f"Ход: {self.turn}", True, colors.BLACK)
         self.screen.blit(turn_text, (350, 450))
 
         if self.window is not None:

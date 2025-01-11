@@ -1,9 +1,5 @@
 import pygame
-
-
-BLACK = (0, 0, 0)
-GRAY = (200, 200, 200)
-GOLD = (255, 215, 0)
+import colors
 
 
 class Tile:
@@ -56,7 +52,7 @@ class Tile:
 
     def render(self, screen, x, y):
         """Отображение клетки на экране (включая логотип)."""
-        color = GRAY if self.is_owned() else GOLD
+        color = colors.GRAY if self.is_owned() else colors.GOLD
         pygame.draw.rect(screen, color, (x, y, 60, 60))
 
         if self.logo:
@@ -64,26 +60,25 @@ class Tile:
             screen.blit(self.logo, (x + 2, y + 2), (0, 0, 56, 56))  # Псевдокод для отрисовки
         else:
             # Отображение текстового названия, если логотип не задан
-            label = self.font.render(self.name, True, BLACK)
+            label = self.font.render(self.name, True, colors.BLACK)
             screen.blit(label, (x + 5, y + 30))
 
-        text = self.font.render(f"{self.price}₽", True, BLACK)
+        text = self.font.render(f"{self.price}₽", True, colors.BLACK)
         screen.blit(text, (x + 5, y + 5))
 
         if self.is_owned():
-            owner_text = self.font.render(f"P{self.owner + 1}", True, BLACK)
+            owner_text = self.font.render(f"P{self.owner + 1}", True, colors.BLACK)
             screen.blit(owner_text, (x + 30, y + 5))
 
     ####
 
-    def draw_tile(self, screen, position, offset, group_colors, players):
+    def draw_tile(self, screen, position, offset, players):
         """
         Отображает клетку на экране в изометрическом стиле.
 
         :param screen: Экран для отображения.
         :param position: Координаты клетки (x, y).
         :param offset:
-        :param group_colors: Словарь {group_name: color}, цвета для групп.
         :param players:
         """
 
@@ -99,10 +94,10 @@ class Tile:
         center_y = offset_y + iso_y * self.TILE_HEIGHT // 2
 
         # Цвет группы клетки
-        group_color = group_colors.get(self.group, (200, 200, 200))  # Если группа не найдена, серый цвет
+        group_color = self.group.color if self.group is not None else (200, 200, 200)  # Если группа не найдена, серый цвет
 
         # Цвет владельца
-        owner_color = GOLD
+        owner_color = colors.GOLD
         if self.is_owned():
             owner_color = players[self.owner].color or (255, 255, 255)  # Если владелец не найден, белый цвет
 
@@ -127,10 +122,10 @@ class Tile:
             screen.blit(self.logo, logo_rect)  # Псевдокод для отрисовки
         else:
             # Если логотипа нет, отображаем название
-            label = self.font.render(self.name, True, BLACK)
+            label = self.font.render(self.name, True, colors.BLACK)
             screen.blit(label, (center_x - self.TILE_WIDTH // 4, center_y - self.TILE_HEIGHT // 4))
 
-        text = self.font.render(f"{self.price}₽", True, BLACK)
+        text = self.font.render(f"{self.price}₽", True, colors.BLACK)
         screen.blit(text, (center_x - 32, center_y + 8))
 
         # Отображение фишек игроков, находящихся на клетке

@@ -26,13 +26,13 @@ def __load_from_spritesheet(spritesheet_path, tile_width, tile_height, rows, col
 
 def load_logos():
     # Параметры спрайтлиста
-    path = "../res/logo_spritesheet.png"  # Путь к спрайтлисту
+    path = "res/logo_spritesheet.png"  # Путь к спрайтлисту
     images = __load_from_spritesheet(path, 128, 128, 4, 4)
     return list(images)
 
 
 def load_tokens():
     # Параметры спрайтлиста
-    path = "../res/player_spritesheet.png"  # Путь к спрайтлисту
+    path = "res/player_spritesheet.png"  # Путь к спрайтлисту
     images = __load_from_spritesheet(path, 128, 128, 4, 4)
     return list(images)
