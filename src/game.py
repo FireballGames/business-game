@@ -3,8 +3,9 @@ import logging
 import pygame
 import random
 import config
-from Button import Button
+from button import Button
 from buy_window import BuyWindow
+from player import Player
 from sprite_loader import load_logos_from_spritesheet
 from tile import Tile
 
@@ -66,14 +67,9 @@ class Game:
         # clock = pygame.time.Clock()
 
         # Игровые параметры
-        self.player_balance = [1000, 1000]  # Балансы игроков
-        self.current_player = None  # Индекс текущего игрока
-        self.owner_colors = {}
-        self.player_positions = {}
-        self.player_tokens = {}
+        self.players = []
+        self.current_player_id = None  # Индекс текущего игрока
         self.tiles = []
-
-        # Игровые переменные
         self.turn = 1
         self.next_turn = False
 
@@ -96,6 +92,10 @@ class Game:
     def is_running(self, value):
         self.__is_running = value
 
+    @property
+    def current_player(self):
+        return self.players[self.current_player_id]
+
     def load(self):
         """Load game data before start."""
         logging.debug("Загрузка игровых данных")
@@ -114,25 +114,13 @@ class Game:
         self.next_turn_button = Button(300, 500, 200, 50, "Следующий ход", self.button_font, GRAY, DARK_GRAY, BLACK)
 
         # Игровые параметры
-        self.player_balance = [1000, 1000]  # Балансы игроков
-        self.current_player = None  # Индекс текущего игрока
-
-        # Игровые переменные
+        self.players = [
+            Player("Player 1", (255, 0, 0), 0, 1000, tokens[0]),
+            Player("Player 2", (0, 255, 0), 0, 1000, tokens[1]),
+        ]
+        self.current_player_id = None  # Индекс текущего игрока
         self.turn = 1
         self.next_turn = False
-
-        self.owner_colors = {
-            0: (255, 0, 0),
-            1: (0, 255, 0),
-        }
-        self.player_positions = {
-            0: 0,
-            1: 0,
-        }
-        self.player_tokens = {
-            0: tokens[0],
-            1: tokens[1],
-        }
 
         # Пример создания предприятий с логотипами
         car_factory_logo = logos[0]
@@ -179,42 +167,38 @@ class Game:
             # x, y = 50 + i * 70, 250
             # self.tiles[i].render(self.screen, x, y)
             offset = self.field_offset_x, self.field_offset_y
-            self.tiles[i].draw_tile(self.screen, (i, 0), offset, self.owner_colors, group_colors, self.player_positions, self.player_tokens)
+            self.tiles[i].draw_tile(self.screen, (i, 0), offset, group_colors, self.players)
 
     def on_buy(self):
         # Игрок покупает предприятие
-        player_pos = self.player_positions[self.current_player]
-        if self.player_balance[self.current_player] >= self.tiles[player_pos].price:
-            self.tiles[player_pos].set_owner(self.current_player)
-            self.player_balance[self.current_player] -= self.tiles[player_pos].price
+        player_pos = self.current_player.token_position
+        if self.current_player.balance >= self.tiles[player_pos].price:
+            self.tiles[player_pos].set_owner(self.current_player_id)
+            self.current_player.balance -= self.tiles[player_pos].price
 
     # Обработка хода
     def handle_turn(self):
         # Переход хода
-        if self.current_player is None:
+        if self.current_player_id is None:
             player = 0
         else:
-            player = (self.current_player + 1) % 2
-        self.current_player = player
+            player = (self.current_player_id + 1) % 2
+        self.current_player_id = player
         self.turn += 1
 
-        player_pos = random.randint(0, 9)  # Игрок "попадает" на случайную клетку
-        self.player_positions[player] = player_pos
+        roll = random.randint(1, 6)  # Игрок "попадает" на случайную клетку
+        self.current_player.move_token(roll, len(self.tiles))
+        player_pos = self.current_player.token_position
         if not self.tiles[player_pos].is_owned():
             # Клетка свободна, предложение купить
             self.window = BuyWindow(self.screen, self.button_font, self.tiles[player_pos], self.on_buy)
-
-            # Игрок покупает предприятие
-            # if result and self.player_balance[player] >= self.tiles[player_pos].price:
-            #     self.tiles[player_pos].set_owner(player)
-            #     self.player_balance[player] -= self.tiles[player_pos].price
         else:
             # Клетка занята, оплата аренды
             owner = self.tiles[player_pos].owner
             if owner != player:
                 rent = self.tiles[player_pos].rent
-                self.player_balance[player] -= rent
-                self.player_balance[owner] += rent
+                self.current_player.balance -= rent
+                self.players[owner].balance += rent
 
         self.next_turn = False
 
@@ -270,7 +254,7 @@ class Game:
     def update(self):
         # Логика игры
         # if pygame.key.get_pressed()[pygame.K_SPACE]:
-        #     self.handle_turn(self.current_player)
+        #     self.handle_turn(self.current_player_id)
 
         # Логика для следующего хода
         if self.next_turn:
@@ -285,10 +269,10 @@ class Game:
         self.draw_board()
 
         # Отображение баланса
-        player1_text = self.FONT.render(f"Игрок 1: {self.player_balance[0]}₽", True, BLACK)
+        player1_text = self.FONT.render(f"Игрок 1: {self.players[0].balance}₽", True, BLACK)
         self.screen.blit(player1_text, (50, 50))
 
-        player2_text = self.FONT.render(f"Игрок 2: {self.player_balance[1]}₽", True, BLACK)
+        player2_text = self.FONT.render(f"Игрок 2: {self.players[1].balance}₽", True, BLACK)
         self.screen.blit(player2_text, (50, 100))
 
         # Отрисовка кнопки

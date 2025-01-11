@@ -76,17 +76,15 @@ class Tile:
 
     ####
 
-    def draw_tile(self, screen, position, offset, owner_colors, group_colors, player_positions, player_tokens):
+    def draw_tile(self, screen, position, offset, group_colors, players):
         """
         Отображает клетку на экране в изометрическом стиле.
 
-        :param offset:
         :param screen: Экран для отображения.
         :param position: Координаты клетки (x, y).
-        :param owner_colors: Словарь {owner_id: color}, цвета для владельцев.
+        :param offset:
         :param group_colors: Словарь {group_name: color}, цвета для групп.
-        :param player_positions: Список {player_id: tile_id}, позиция игроков.
-        :param player_tokens: Словарь {player_id: token_image}, изображения фишек игроков.
+        :param players:
         """
 
         offset_x, offset_y = offset
@@ -106,7 +104,7 @@ class Tile:
         # Цвет владельца
         owner_color = GOLD
         if self.is_owned():
-            owner_color = owner_colors.get(self.owner, (255, 255, 255))  # Если владелец не найден, белый цвет
+            owner_color = players[self.owner].color or (255, 255, 255)  # Если владелец не найден, белый цвет
 
         # Рисуем клетку как ромб
         points = [
@@ -136,9 +134,9 @@ class Tile:
         screen.blit(text, (center_x - 32, center_y + 8))
 
         # Отображение фишек игроков, находящихся на клетке
-        for player_id, tile_id in player_positions.items():
-            if tile_id == self.tile_id:
+        for player_id, player in enumerate(players):
+            if player.token_position == self.tile_id:
                 # Координаты для фишки
                 token_x = center_x - self.TILE_WIDTH // 2  # center_x + self.TILE_WIDTH // 4
-                token_y = center_y + self.TILE_HEIGHT // 2 - 128  # center_y + self.TILE_HEIGHT // 4 + player_id * 10
-                screen.blit(player_tokens[player_id], (token_x, token_y))
+                token_y = center_y + self.TILE_HEIGHT // 2 - 128 - player_id * 8  # center_y + self.TILE_HEIGHT // 4 + player_id * 10
+                screen.blit(player.token, (token_x, token_y))

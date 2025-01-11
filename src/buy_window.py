@@ -1,6 +1,6 @@
 import pygame
 
-from Button import Button
+from button import Button
 
 # Цвета
 WHITE = (255, 255, 255)
