@@ -6,7 +6,7 @@ import config
 from button import Button
 from buy_window import BuyWindow
 from player import Player
-from sprite_loader import load_logos_from_spritesheet
+from sprite_loader import load_logos, load_tokens
 from tile import Tile
 
 
@@ -27,15 +27,6 @@ group_colors = {
     hotel_group: (255, 0, 255),
     grocery_group: (255, 255, 0),
 }
-
-# Параметры спрайтлиста
-LOGO_SPRITESHEET_PATH = "../res/logo_spritesheet.png"  # Путь к спрайтлисту
-PLAYER_SPRITESHEET_PATH = "../res/player_spritesheet.png"  # Путь к спрайтлисту
-TILE_WIDTH = 128  # Ширина одного логотипа
-TILE_HEIGHT = 128  # Высота одного логотипа
-ROWS = 4  # Количество строк
-COLS = 4  # Количество колонок
-
 
 class Game:
     def __init__(self):
@@ -100,10 +91,10 @@ class Game:
         logging.debug("Загрузка игровых данных")
 
         # Загрузка логотипов
-        logos = load_logos_from_spritesheet(LOGO_SPRITESHEET_PATH, TILE_WIDTH, TILE_HEIGHT, ROWS, COLS)
+        logos = load_logos()
 
         # Загрузка фишек
-        tokens = load_logos_from_spritesheet(PLAYER_SPRITESHEET_PATH, TILE_WIDTH, TILE_HEIGHT, ROWS, COLS)
+        tokens = load_tokens()
 
         # Шрифты
         self.FONT = pygame.font.Font("../res/fonts/OldStandardTT-Regular.ttf", 36)
