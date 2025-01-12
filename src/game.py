@@ -114,8 +114,7 @@ class Game:
         player_pos = self.current_player.token_position
         tile = self.field.get_tile(player_pos)
         if self.current_player.balance >= tile.price:
-            tile.set_owner(self.current_player_id)
-            self.current_player.balance -= tile.price
+            self.current_player.buy_property(tile)
 
     # Обработка хода
     def handle_turn(self):
@@ -138,9 +137,8 @@ class Game:
             # Клетка занята, оплата аренды
             owner = tile.owner
             if owner != player:
-                rent = tile.rent
-                self.current_player.balance -= rent
-                self.players[owner].balance += rent
+                if self.current_player.balance >= tile.rent:
+                    self.current_player.pay_rent(self.players[owner], tile.rent)
 
         self.next_turn = False
 

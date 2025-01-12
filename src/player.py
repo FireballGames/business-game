@@ -46,9 +46,10 @@ class Player:
         :param property_cell: Клетка с информацией о предприятии.
         """
         if self.balance >= property_cell.price:
-            self.balance -= property_cell.price
+            self.adjust_balance(-property_cell.price)
             self.properties.append(property_cell)
-            property_cell.owner = self
+            # property_cell.owner = self
+            property_cell.set_owner(self)
         else:
             raise ValueError("Недостаточно средств для покупки.")
 
