@@ -29,6 +29,9 @@ class Game:
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption(self.title)
 
+        # Спрайты
+        self.background_image = None
+
         # Шрифты
         self.FONT = None
         self.button_font = None
@@ -63,6 +66,7 @@ class Game:
         logging.debug("Загрузка игровых данных")
 
         # Загрузка спрайтов
+        self.background_image = pygame.image.load("res/main-screen.png").convert_alpha()
         logos = load_logos()
         tokens = load_tokens()
 
@@ -104,6 +108,7 @@ class Game:
     # Отрисовка игрового поля
     def draw_board(self):
         self.screen.fill(self.background_color)
+        self.screen.blit(self.background_image, (0, 0))
 
         self.field.draw(self.screen, self.players)
 
