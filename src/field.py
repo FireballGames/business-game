@@ -16,22 +16,21 @@ class Field:
         self.start_drag_pos = (0, 0)
 
         # Создаем список клеток для игрового поля
-        # properties = [None] * 10  # Клетки поля
-        # property_prices = [random.randint(100, 300) for _ in range(10)]  # Цены на предприятия
-        # property_rents = [price // 10 for price in property_prices]  # Аренда = 10% от цены
         self.tiles = [
-            Tile(0, "Фабрика", 200, 20),  # Обычная клетка предприятия
-            Tile(1, "Казино", 0, 0, tile_type="casino"),  # Казино
-            Tile(2, "Тюрьма", 0, 0, tile_type="jail"),  # Тюрьма
-            Tile(3, "Аптека", 150, 15),  # Обычная клетка предприятия
-            Tile(4, "Событие", 0, 0, tile_type="event"),  # Событие
-            Tile(5, "Автозавод", 500, 50, group=groups.AutomotiveGroup, logo=car_factory_logo),
-            Tile(6, "Гостиница", 300, 30, group=groups.HotelGroup, logo=hotel_logo),
-            Tile(7, "Магазин продуктов", 200, 20, group=groups.GroceryGroup),
-            Tile(8, "Аптека", 150, 15),  # Обычная клетка предприятия
-            Tile(9, "Событие", 0, 0, tile_type="event"),  # Событие
-            Tile(10, "Фабрика", 200, 20),  # Обычная клетка предприятия
-            Tile(11, "Казино", 0, 0, tile_type="casino"),  # Казино
+            Tile(0, "Банкъ", 1000, tile_type="bank"),  # Стартовая клетка
+            Tile(1, "Руссо-Балтъ", 9000, 50, group=groups.AutomotiveGroup, logo=car_factory_logo),
+            Tile(2, "Ньюпортъ", 20000, 50),
+            Tile(3, "Доходный домъ", 9000, 30, group=groups.HotelGroup, logo=hotel_logo),
+            Tile(4, "Рулѣтка", 0, tile_type="casino"),  # Казино
+            Tile(5, "Гарфункѣль", 10000, 50),
+            Tile(6, "Елѣсѣѣвъ", 2000, 20, group=groups.GroceryGroup),
+            Tile(7, "Філіповъ", 1500, 20, group=groups.GroceryGroup),
+            Tile(8, "Табакь", 1000, 50),
+            Tile(9, "Трактіръ", 5000, 20, group=groups.GroceryGroup),
+            Tile(10, "Квасъ", 7000, 20, group=groups.GroceryGroup),
+
+            Tile(11, "Околотокъ", 0, tile_type="jail"),  # Тюрьма
+
             Tile(12, "Тюрьма", 0, 0, tile_type="jail"),  # Тюрьма
             Tile(13, "Аптека", 150, 15),  # Обычная клетка предприятия
             Tile(14, "Событие", 0, 0, tile_type="event"),  # Событие

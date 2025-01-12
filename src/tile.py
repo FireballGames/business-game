@@ -7,7 +7,7 @@ class Tile:
     TILE_WIDTH = 128
     TILE_HEIGHT = 64
 
-    def __init__(self, tile_id, name, price, rent, tile_type="property", owner=None, logo=None, group=None, **kwargs):
+    def __init__(self, tile_id, name, price, rent=None, tile_type="property", owner=None, logo=None, group=None, **kwargs):
         """
         Инициализация клетки.
 
@@ -22,8 +22,14 @@ class Tile:
         """
         self.tile_id = tile_id
         self.name = name
+
         self.price = price
-        self.rent = rent
+        self.rent = 0
+        if rent is not None:
+            self.rent = rent
+        elif tile_type == "property":
+            self.rent = price // 10
+
         self.owner = owner
         self.tile_type = tile_type
         self.logo = logo  # Логотип или изображение для отрисовки
