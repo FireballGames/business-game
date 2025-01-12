@@ -1,5 +1,5 @@
 class Player:
-    def __init__(self, name, color, token_position, balance, token=None, properties=None, in_jail=False, turns_in_jail=0, inventory=None):
+    def __init__(self, name, color, token_position=0, balance=60000, token=None, avatar=None, properties=None, in_jail=False, turns_in_jail=0, inventory=None):
         """
         Инициализация игрока.
 
@@ -16,6 +16,7 @@ class Player:
         self.color = color
         self.token_position = token_position
         self.balance = balance
+        self.avatar = avatar
         self.token = token
         self.properties = properties if properties else []
         self.in_jail = in_jail

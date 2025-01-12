@@ -36,3 +36,10 @@ def load_tokens():
     path = "res/player_spritesheet.png"  # Путь к спрайтлисту
     images = __load_from_spritesheet(path, 128, 128, 4, 4)
     return list(images)
+
+
+def load_portraits():
+    # Параметры спрайтлиста
+    path = "res/characters.png"  # Путь к спрайтлисту
+    images = __load_from_spritesheet(path, 210, 210, 4, 4)
+    return list(images)

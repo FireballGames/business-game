@@ -8,7 +8,8 @@ from button import Button
 from buy_window import BuyWindow
 from field import Field
 from player import Player
-from sprite_loader import load_logos, load_tokens
+from player_panel import PlayerPanel
+from sprite_loader import load_logos, load_tokens, load_portraits
 
 
 class Game:
@@ -31,6 +32,7 @@ class Game:
 
         # Спрайты
         self.background_image = None
+        self.player_panel = None
 
         # Шрифты
         self.FONT = None
@@ -67,8 +69,11 @@ class Game:
 
         # Загрузка спрайтов
         self.background_image = pygame.image.load("res/main-screen.png").convert_alpha()
+        self.background_image.fill(self.background_color)
+        self.player_panel = PlayerPanel(rect=pygame.Rect(1, 18, 274, 992))
         logos = load_logos()
         tokens = load_tokens()
+        portraits = load_portraits()
 
         # Шрифты
         self.FONT = pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 36)
@@ -79,12 +84,26 @@ class Game:
 
         # Игровые параметры
         self.players = [
-            Player("Player 1", (255, 0, 0), 0, 1000, tokens[0]),
-            Player("Player 2", (0, 255, 0), 0, 1000, tokens[1]),
+            Player(
+                "Игрок 1",
+                (255, 0, 0),
+                # 0,
+                # 1000,
+                token=pygame.transform.scale(portraits[0], (64, 64)),
+                avatar=portraits[0],
+            ),
+            Player(
+                "Игрок 2",
+                (0, 255, 0),
+                # 0,
+                # 1000,
+                token=pygame.transform.scale(portraits[1], (64, 64)),
+                avatar=portraits[1],
+            ),
         ]
         self.current_player_id = None  # Индекс текущего игрока
         self.turn = 1
-        self.next_turn = False
+        self.next_turn = True
 
         # Создаем список клеток для игрового поля
         self.field = Field(logos)
@@ -104,13 +123,6 @@ class Game:
         """Start game."""
         logging.debug("Выход из игры")
         pygame.quit()
-
-    # Отрисовка игрового поля
-    def draw_board(self):
-        self.screen.fill(self.background_color)
-        self.screen.blit(self.background_image, (0, 0))
-
-        self.field.draw(self.screen, self.players)
 
     def on_buy(self):
         # Игрок покупает предприятие
@@ -148,6 +160,9 @@ class Game:
     def get_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                self.stop()
+
+            if pygame.key.get_pressed()[pygame.K_ESCAPE]:
                 self.stop()
 
             # elif event.type == pygame.KEYDOWN:
@@ -188,17 +203,26 @@ class Game:
         if self.window is not None and not self.window.visible:
             self.window = None
 
+        if self.current_player_id is not None:
+            self.player_panel.render(self.current_player, self.turn, self.players)
+
     def draw(self):
         """Draw game screen."""
         # Отрисовка
-        self.draw_board()
+        # self.screen.fill(self.background_color)
+        self.screen.blit(self.background_image, (0, 0))
+
+        # Отрисовка игрового поля
+        self.field.draw(self.screen, self.players)
+
+        self.screen.blit(self.player_panel.image, self.player_panel.rect)
 
         # Отображение баланса
-        player1_text = self.FONT.render(f"Игрок 1: {self.players[0].balance}₽", True, colors.BLACK)
-        self.screen.blit(player1_text, (50, 50))
+        # player1_text = self.FONT.render(f"Игрок 1: {self.players[0].balance}₽", True, colors.BLACK)
+        # self.screen.blit(player1_text, (50, 50))
 
-        player2_text = self.FONT.render(f"Игрок 2: {self.players[1].balance}₽", True, colors.BLACK)
-        self.screen.blit(player2_text, (50, 100))
+        # player2_text = self.FONT.render(f"Игрок 2: {self.players[1].balance}₽", True, colors.BLACK)
+        # self.screen.blit(player2_text, (50, 100))
 
         # Отрисовка кнопки
         self.next_turn_button.draw(self.screen)

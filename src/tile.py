@@ -4,8 +4,8 @@ import colors
 
 class Tile:
     # Размеры клетки
-    TILE_WIDTH = 128
-    TILE_HEIGHT = 64
+    TILE_WIDTH = 256
+    TILE_HEIGHT =128
 
     def __init__(self, tile_id, name, price, rent=None, tile_type="property", owner=None, logo=None, group=None, position=(0, 0)):
         """
@@ -69,7 +69,7 @@ class Tile:
             label = self.font.render(self.name, True, colors.BLACK)
             screen.blit(label, (x + 5, y + 30))
 
-        text = self.font.render(f"{self.price}₽", True, colors.BLACK)
+        text = self.font.render(f"{self.price}", True, colors.BLACK)
         screen.blit(text, (x + 5, y + 5))
 
         if self.is_owned():
@@ -124,20 +124,24 @@ class Tile:
         if self.logo:
             # Здесь будет код для отрисовки логотипа на координатах (x, y).
             # logo_rect = self.logo.get_rect(center=(center_x, center_y))
-            logo_rect = (center_x - self.TILE_WIDTH // 2, center_y - self.TILE_HEIGHT * 2)
+            logo_rect = (center_x - self.TILE_WIDTH // 4, center_y - 128)
             screen.blit(self.logo, logo_rect)  # Псевдокод для отрисовки
         else:
             # Если логотипа нет, отображаем название
             label = self.font.render(self.name, True, colors.BLACK)
-            screen.blit(label, (center_x - self.TILE_WIDTH // 4, center_y - self.TILE_HEIGHT // 4))
+            screen.blit(label, (center_x - self.TILE_WIDTH // 4, center_y - 8))
 
-        text = self.font.render(f"{self.price}₽", True, colors.BLACK)
-        screen.blit(text, (center_x - 32, center_y + 8))
+        text = self.font.render(f"{self.price}₽", True, colors.DARK_GRAY)
+        screen.blit(text, (center_x - self.TILE_WIDTH // 4, center_y + 8))
 
         # Отображение фишек игроков, находящихся на клетке
+        quarter_width = self.TILE_WIDTH // 4
+        quarter_height = self.TILE_HEIGHT // 4
+        start_x = center_x - self.TILE_WIDTH // 2
+        start_y = center_y - quarter_height
         for player_id, player in enumerate(players):
             if player.token_position == self.tile_id:
                 # Координаты для фишки
-                token_x = center_x - self.TILE_WIDTH // 2  # center_x + self.TILE_WIDTH // 4
-                token_y = center_y + self.TILE_HEIGHT // 2 - 128 - player_id * 8  # center_y + self.TILE_HEIGHT // 4 + player_id * 10
+                token_x = start_x + quarter_width * (player_id % 2) + quarter_width * (player_id // 2) + quarter_width // 2 # center_x + self.TILE_WIDTH // 4
+                token_y = start_y + quarter_height * (player_id % 2) - quarter_height * (player_id // 2)  # center_y + self.TILE_HEIGHT // 4 + player_id * 10
                 screen.blit(player.token, (token_x, token_y))
