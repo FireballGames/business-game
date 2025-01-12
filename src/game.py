@@ -7,6 +7,7 @@ import config
 import groups
 from button import Button
 from buy_window import BuyWindow
+from field import Field
 from player import Player
 from sprite_loader import load_logos, load_tokens
 from tile import Tile
@@ -43,7 +44,7 @@ class Game:
         # Игровые параметры
         self.players = []
         self.current_player_id = None  # Индекс текущего игрока
-        self.tiles = []
+        self.field = None
         self.turn = 1
         self.next_turn = False
 
@@ -96,26 +97,8 @@ class Game:
         self.turn = 1
         self.next_turn = False
 
-        # Пример создания предприятий с логотипами
-        car_factory_logo = logos[0]
-        hotel_logo = logos[1]
-
         # Создаем список клеток для игрового поля
-        # properties = [None] * 10  # Клетки поля
-        # property_prices = [random.randint(100, 300) for _ in range(10)]  # Цены на предприятия
-        # property_rents = [price // 10 for price in property_prices]  # Аренда = 10% от цены
-        self.tiles = [
-            Tile(0, "Фабрика", 200, 20),  # Обычная клетка предприятия
-            Tile(1, "Казино", 0, 0, tile_type="casino"),  # Казино
-            Tile(2, "Тюрьма", 0, 0, tile_type="jail"),  # Тюрьма
-            Tile(3, "Аптека", 150, 15),  # Обычная клетка предприятия
-            Tile(4, "Событие", 0, 0, tile_type="event"),  # Событие
-            Tile(5, "Автозавод", 500, 50, group=groups.AutomotiveGroup, logo=car_factory_logo),
-            Tile(6, "Гостиница", 300, 30, group=groups.HotelGroup, logo=hotel_logo),
-            Tile(7, "Магазин продуктов", 200, 20, group=groups.GroceryGroup),
-            Tile(8, "Аптека", 150, 15),  # Обычная клетка предприятия
-            Tile(9, "Событие", 0, 0, tile_type="event"),  # Событие
-        ]
+        self.field = Field(logos)
 
     def start(self):
         """Start game."""
@@ -137,18 +120,16 @@ class Game:
     def draw_board(self):
         self.screen.fill(self.background_color)
 
-        for i in range(10):
-            # x, y = 50 + i * 70, 250
-            # self.tiles[i].render(self.screen, x, y)
-            offset = self.field_offset_x, self.field_offset_y
-            self.tiles[i].draw_tile(self.screen, (i, 0), offset, self.players)
+        offset = self.field_offset_x, self.field_offset_y
+        self.field.draw(self.screen, offset, self.players)
 
     def on_buy(self):
         # Игрок покупает предприятие
         player_pos = self.current_player.token_position
-        if self.current_player.balance >= self.tiles[player_pos].price:
-            self.tiles[player_pos].set_owner(self.current_player_id)
-            self.current_player.balance -= self.tiles[player_pos].price
+        tile = self.field.get_tile(player_pos)
+        if self.current_player.balance >= tile.price:
+            tile.set_owner(self.current_player_id)
+            self.current_player.balance -= tile.price
 
     # Обработка хода
     def handle_turn(self):
@@ -161,16 +142,17 @@ class Game:
         self.turn += 1
 
         roll = random.randint(1, 6)  # Игрок "попадает" на случайную клетку
-        self.current_player.move_token(roll, len(self.tiles))
+        self.current_player.move_token(roll, len(self.field))
         player_pos = self.current_player.token_position
-        if not self.tiles[player_pos].is_owned():
+        tile = self.field.get_tile(player_pos)
+        if not tile.is_owned():
             # Клетка свободна, предложение купить
-            self.window = BuyWindow(self.screen, self.button_font, self.tiles[player_pos], self.on_buy)
+            self.window = BuyWindow(self.screen, self.button_font, tile, self.on_buy)
         else:
             # Клетка занята, оплата аренды
-            owner = self.tiles[player_pos].owner
+            owner = tile.owner
             if owner != player:
-                rent = self.tiles[player_pos].rent
+                rent = tile.rent
                 self.current_player.balance -= rent
                 self.players[owner].balance += rent
 
