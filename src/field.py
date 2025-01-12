@@ -41,9 +41,9 @@ class Field:
             Tile(19, "Событие", 0, 0, tile_type="event", position=(3, 2)),  # Событие
             Tile(20, "Фабрика", 200, 20, position=(2, 2)),  # Обычная клетка предприятия
             Tile(21, "Казино", 0, 0, tile_type="casino", position=(1, 2)),  # Казино
-            Tile(22, "Тюрьма", 0, 0, tile_type="jail", position=(0, 2)),  # Тюрьма
+            Tile(22, "Аптека", 150, 15, position=(0, 2)),  # Обычная клетка предприятия
 
-            Tile(23, "Аптека", 150, 15, position=(0, 3)),  # Обычная клетка предприятия
+            Tile(23, "Околотокъ", 0, 0, tile_type="jail", position=(0, 3)),  # Тюрьма
 
             Tile(24, "Событие", 0, 0, tile_type="event", position=(0, 4)),  # Событие
             Tile(25, "Автозавод", 500, 50, group=groups.AutomotiveGroup, logo=car_factory_logo, position=(1, 4)),
@@ -51,6 +51,8 @@ class Field:
             Tile(27, "Магазин продуктов", 200, 20, group=groups.GroceryGroup, position=(3, 4)),
             Tile(28, "Аптека", 150, 15, position=(4, 4)),  # Обычная клетка предприятия
             Tile(29, "Событие", 0, 0, tile_type="event", position=(5, 4)),  # Событие
+
+            Tile(30, "Околотокъ", 0, 0, tile_type="jail", position=(10, 5)),  # Тюрьма
         ]
 
     def get_sorted(self):
