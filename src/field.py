@@ -1,3 +1,4 @@
+import pygame
 import groups
 from tile import Tile
 
@@ -7,6 +8,12 @@ class Field:
         # Пример создания предприятий с логотипами
         car_factory_logo = logos[0]
         hotel_logo = logos[1]
+
+        self.offset_x = 500
+        self.offset_y = 100
+
+        self.dragging = False
+        self.start_drag_pos = (0, 0)
 
         # Создаем список клеток для игрового поля
         # properties = [None] * 10  # Клетки поля
@@ -51,10 +58,30 @@ class Field:
     def get_tile(self, tile_id):
         return self.tiles[tile_id]
 
-    # Отрисовка игрового поля
-    def draw(self, screen, offset, players):
 
-        # offset = self.field_offset_x, self.field_offset_y
+    def update(self, event):
+        # Нажатие мыши
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:  # Левая кнопка мыши
+                self.dragging = True
+                self.start_drag_pos = event.pos
+
+        # Отпускание мыши
+        if event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1:  # Левая кнопка мыши
+                self.dragging = False
+
+        # Перемещение мыши
+        if event.type == pygame.MOUSEMOTION:
+            if self.dragging:
+                dx, dy = event.pos[0] - self.start_drag_pos[0], event.pos[1] - self.start_drag_pos[1]
+                self.offset_x += dx
+                self.offset_y += dy
+                self.start_drag_pos = event.pos
+
+    # Отрисовка игрового поля
+    def draw(self, screen, players):
+        offset = self.offset_x, self.offset_y
         starter_tile_id = 0
         j = 0
         while starter_tile_id < len(self.tiles):

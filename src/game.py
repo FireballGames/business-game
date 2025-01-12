@@ -4,13 +4,11 @@ import pygame
 import random
 import colors
 import config
-import groups
 from button import Button
 from buy_window import BuyWindow
 from field import Field
 from player import Player
 from sprite_loader import load_logos, load_tokens
-from tile import Tile
 
 
 class Game:
@@ -47,17 +45,6 @@ class Game:
         self.field = None
         self.turn = 1
         self.next_turn = False
-
-        self.field_offset_x = 500
-        self.field_offset_y = 100
-
-        self.dragging = False
-        self.start_drag_pos = (0, 0)
-
-        # ?
-        # self.player_group = pygame.sprite.GroupSingle()
-        # self.sprites = pygame.sprite.Group()
-        # self.group = pygame.sprite.Group()
 
     @property
     def is_running(self):
@@ -120,8 +107,7 @@ class Game:
     def draw_board(self):
         self.screen.fill(self.background_color)
 
-        offset = self.field_offset_x, self.field_offset_y
-        self.field.draw(self.screen, offset, self.players)
+        self.field.draw(self.screen, self.players)
 
     def on_buy(self):
         # Игрок покупает предприятие
@@ -173,6 +159,9 @@ class Game:
             # elif event.type == pygame.MOUSEBUTTONUP:
             #     events.mouse.unset_pressed(event.button)
 
+            # if pygame.key.get_pressed()[pygame.K_SPACE]:
+            #     self.handle_turn(self.current_player_id)
+
             # if events.keys.is_key_pressed(pygame.K_ESCAPE):
             #     self.stop()
 
@@ -188,30 +177,9 @@ class Game:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 self.next_turn = True
 
-            # Нажатие мыши
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:  # Левая кнопка мыши
-                    self.dragging = True
-                    self.start_drag_pos = event.pos
-
-            # Отпускание мыши
-            if event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1:  # Левая кнопка мыши
-                    self.dragging = False
-
-            # Перемещение мыши
-            if event.type == pygame.MOUSEMOTION:
-                if self.dragging:
-                    dx, dy = event.pos[0] - self.start_drag_pos[0], event.pos[1] - self.start_drag_pos[1]
-                    self.field_offset_x += dx
-                    self.field_offset_y += dy
-                    self.start_drag_pos = event.pos
+            self.field.update(event)
 
     def update(self):
-        # Логика игры
-        # if pygame.key.get_pressed()[pygame.K_SPACE]:
-        #     self.handle_turn(self.current_player_id)
-
         # Логика для следующего хода
         if self.next_turn:
             self.handle_turn()
