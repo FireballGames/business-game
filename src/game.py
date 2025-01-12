@@ -9,7 +9,7 @@ from buy_window import BuyWindow
 from field import Field
 from player import Player
 from player_panel import PlayerPanel
-from sprite_loader import load_logos, load_tokens, load_portraits
+from sprite_loader import load_logos, load_portraits
 
 
 class Game:
@@ -69,10 +69,9 @@ class Game:
 
         # Загрузка спрайтов
         self.background_image = pygame.image.load("res/main-screen.png").convert_alpha()
-        self.background_image.fill(self.background_color)
+        # self.background_image.fill(self.background_color)
         self.player_panel = PlayerPanel(rect=pygame.Rect(1, 18, 274, 992))
         logos = load_logos()
-        tokens = load_tokens()
         portraits = load_portraits()
 
         # Шрифты
@@ -145,15 +144,16 @@ class Game:
         self.current_player.move_token(roll, len(self.field))
         player_pos = self.current_player.token_position
         tile = self.field.get_tile(player_pos)
-        if not tile.is_owned():
-            # Клетка свободна, предложение купить
-            self.window = BuyWindow(self.screen, self.button_font, tile, self.on_buy)
-        else:
-            # Клетка занята, оплата аренды
-            owner = tile.owner
-            if owner != self.current_player:
-                if self.current_player.balance >= tile.rent:
-                    self.current_player.pay_rent(owner, tile.rent)
+        if tile.tile_type == "property":
+            if not tile.is_owned():
+                # Клетка свободна, предложение купить
+                self.window = BuyWindow(self.screen, self.button_font, tile, self.on_buy)
+            else:
+                # Клетка занята, оплата аренды
+                owner = tile.owner
+                if owner != self.current_player:
+                    if self.current_player.balance >= tile.rent:
+                        self.current_player.pay_rent(owner, tile.rent)
 
         self.next_turn = False
 
