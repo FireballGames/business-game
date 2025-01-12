@@ -7,7 +7,7 @@ class Tile:
     TILE_WIDTH = 128
     TILE_HEIGHT = 64
 
-    def __init__(self, tile_id, name, price, rent=None, tile_type="property", owner=None, logo=None, group=None, **kwargs):
+    def __init__(self, tile_id, name, price, rent=None, tile_type="property", owner=None, logo=None, group=None, position=(0, 0)):
         """
         Инициализация клетки.
 
@@ -35,7 +35,7 @@ class Tile:
         self.logo = logo  # Логотип или изображение для отрисовки
         self.group = group  # Группа, к которой относится предприятие (например, "Автомобильное производство")
 
-        self.position = None
+        self.position = position
         self.logo_index = None
 
         self.font = pygame.font.SysFont("../res/fonts/OldStandardTT-Regular.ttf", 16)
@@ -44,9 +44,9 @@ class Tile:
         """Проверяет, есть ли у клетки владелец."""
         return self.owner is not None
 
-    def set_owner(self, owner_id):
+    def set_owner(self, owner):
         """Устанавливает владельца клетки."""
-        self.owner = owner_id
+        self.owner = owner
 
     def reset(self):
         """Сбрасывает владельца клетки."""
@@ -73,7 +73,7 @@ class Tile:
         screen.blit(text, (x + 5, y + 5))
 
         if self.is_owned():
-            owner_text = self.font.render(f"P{self.owner + 1}", True, colors.BLACK)
+            owner_text = self.font.render(self.owner.name, True, colors.BLACK)
             screen.blit(owner_text, (x + 30, y + 5))
 
     ####
@@ -105,7 +105,7 @@ class Tile:
         # Цвет владельца
         owner_color = colors.GOLD
         if self.is_owned():
-            owner_color = players[self.owner].color or (255, 255, 255)  # Если владелец не найден, белый цвет
+            owner_color = self.owner.color or (255, 255, 255)  # Если владелец не найден, белый цвет
 
         # Рисуем клетку как ромб
         points = [

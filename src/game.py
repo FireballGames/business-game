@@ -62,10 +62,8 @@ class Game:
         """Load game data before start."""
         logging.debug("Загрузка игровых данных")
 
-        # Загрузка логотипов
+        # Загрузка спрайтов
         logos = load_logos()
-
-        # Загрузка фишек
         tokens = load_tokens()
 
         # Шрифты
@@ -136,9 +134,9 @@ class Game:
         else:
             # Клетка занята, оплата аренды
             owner = tile.owner
-            if owner != player:
+            if owner != self.current_player:
                 if self.current_player.balance >= tile.rent:
-                    self.current_player.pay_rent(self.players[owner], tile.rent)
+                    self.current_player.pay_rent(owner, tile.rent)
 
         self.next_turn = False
 
