@@ -2,29 +2,7 @@
 
 import pygame
 import colors
-
-
-class Label(pygame.sprite.Sprite):
-    """Текстовая информация как спрайт."""
-
-    def __init__(self, *groups, color=colors.BLACK, font=None, rect=None):
-        super().__init__(*groups)
-        self.rect = rect
-        self.image = None
-
-        self.font = font
-        self.color = color
-
-    def render(self, text):
-        """Создаёт изображение из текста.
-
-        Args:
-            text (string): Текст, из которого предстоит сделать изображение.
-        """
-        self.image = self.font.render(text, True, self.color)
-
-    def __repr__(self):
-        return f"Label(rect={self.rect})"
+from controls.label import Label
 
 
 class PlayerPanel(pygame.sprite.Sprite):
@@ -41,13 +19,13 @@ class PlayerPanel(pygame.sprite.Sprite):
         self.controls = pygame.sprite.Group()
         self.name_label = Label(
             self.controls,
-            rect=(50, 420, 174, 64),
+            rect=pygame.Rect(50, 420, 174, 64),
             font=pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 48),
             color=colors.BLACK,
         )
         self.turn_label = Label(
             self.controls,
-            rect=(50, 484, 174, 64),
+            rect=pygame.Rect(50, 484, 174, 64),
             font=self.font,
             color=colors.BLACK,
         )
@@ -61,10 +39,10 @@ class PlayerPanel(pygame.sprite.Sprite):
             players (List[Player]): список всех игроков
         """
         self.name_label.color = player.color
-        self.name_label.render(player.name)
+        self.name_label.text = player.name
 
         # Отображение текущего хода
-        self.turn_label.render(f"Ход: {turn}")
+        self.turn_label.text = f"Ход: {turn}"
 
         # Отображение баланса
         labels = pygame.sprite.Group()
@@ -77,7 +55,7 @@ class PlayerPanel(pygame.sprite.Sprite):
                 font=self.font,
                 color=colors.BLACK,
             )
-            label.render(f"{player_data.name}: {player_data.balance}")
+            label.text = f"{player_data.name}: {player_data.balance}"
             label_rect = label_rect.move(0, 32)
 
         label_rect = pygame.Rect(50, 676, 174, 64)
@@ -88,7 +66,7 @@ class PlayerPanel(pygame.sprite.Sprite):
                 font=self.font,
                 color=colors.BLACK,
             )
-            label.render(tile.name)
+            label.text = tile.name
             label_rect = label_rect.move(0, 32)
 
         self.image.fill(colors.WHITE)

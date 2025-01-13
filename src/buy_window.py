@@ -2,7 +2,7 @@
 
 import pygame
 import colors
-from button import Button
+from controls.button import Button
 
 
 class BuyWindow:
@@ -23,40 +23,48 @@ class BuyWindow:
         )
 
         # Создание кнопок
+        self.buttons = pygame.sprite.Group()
         self.yes_button = Button(
-            x=self.rect.x + 50,
-            y=self.rect.y + 130,
-            width=100,
-            height=40,
+            self.buttons,
+            rect=pygame.Rect(
+                self.rect.x + 50,
+                self.rect.y + 130,
+                100,
+                40,
+            ),
             text="Купить",
-            font=font,
-            color=colors.GRAY,
-            hover_color=colors.DARK_GRAY,
-            text_color=colors.BLACK
         )
+        self.yes_button.label.font = font
+        self.yes_button.on_click = self.on_yes_button_click
+
         self.no_button = Button(
-            x=self.rect.x + 250,
-            y=self.rect.y + 130,
-            width=100,
-            height=40,
+            self.buttons,
+            rect=pygame.Rect(
+                self.rect.x + 250,
+                self.rect.y + 130,
+                100,
+                40,
+            ),
             text="Отказаться",
-            font=font,
-            color=colors.GRAY,
-            hover_color=colors.DARK_GRAY,
-            text_color=colors.BLACK
         )
+        self.no_button.label.font = font
+        self.no_button.on_click = self.on_no_button_click
+
         self.on_yes = on_yes
         self.visible = True
+
+    def on_yes_button_click(self):
+        self.visible = False
+        self.on_yes()
+
+    def on_no_button_click(self):
+        self.visible = False
 
     def update(self, event):
         """Обработка событий окна."""
         # Проверка кнопок
-        if self.yes_button.is_clicked(event):
-            self.visible = False
-            self.on_yes()
-            return
-        if self.no_button.is_clicked(event):
-            self.visible = False
+        for button in self.buttons:
+            button.process_event(event)
 
     def draw(self, screen):
         """Отрисовка окна."""
@@ -74,5 +82,6 @@ class BuyWindow:
         screen.blit(title_text, title_rect)
 
         # Рисуем кнопки
-        self.yes_button.draw(screen)
-        self.no_button.draw(screen)
+        for button in self.buttons:
+            button.update()
+        self.buttons.draw(screen)

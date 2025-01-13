@@ -1,10 +1,12 @@
 #! /usr/bin/python
+"""Main game module."""
+
 import logging
-import pygame
 import random
+import pygame
 import colors
 import config
-from button import Button
+from controls.button import Button
 from buy_window import BuyWindow
 from field import Field
 from player import Player
@@ -12,7 +14,26 @@ from player_panel import PlayerPanel
 from sprite_loader import load_logos, load_portraits
 
 
+class GameResources:
+    def __init__(self):
+        self.__resources = {
+            # Images
+            'main-screen': pygame.image.load("res/main-screen.png").convert_alpha(),
+            # Spritesheets
+            'logos': load_logos(),
+            'portraits': load_portraits(),
+            # Fonts
+            'big_font': pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 36),
+            'small_font': pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 24),
+        }
+
+    def get(self, resource_id):
+        return self.__resources.get(resource_id)
+
+
 class Game:
+    """Game main class."""
+
     def __init__(self):
         # Инициализация pygame
         pygame.init()
@@ -30,13 +51,12 @@ class Game:
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption(self.title)
 
+        # Resources
+        self.resources = {}
+
         # Спрайты
         self.background_image = None
         self.player_panel = None
-
-        # Шрифты
-        self.FONT = None
-        self.button_font = None
 
         # Создание кнопки
         self.next_turn_button = None
@@ -67,19 +87,26 @@ class Game:
         """Load game data before start."""
         logging.debug("Загрузка игровых данных")
 
-        # Загрузка спрайтов
-        self.background_image = pygame.image.load("res/main-screen.png").convert_alpha()
-        # self.background_image.fill(self.background_color)
-        self.player_panel = PlayerPanel(rect=pygame.Rect(1, 18, 274, 992))
-        logos = load_logos()
-        portraits = load_portraits()
+        # Load resources
+        self.resources = GameResources()
 
-        # Шрифты
-        self.FONT = pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 36)
-        self.button_font = pygame.font.SysFont("res/fonts/OldStandardTT-Regular.ttf", 24)
+        # Load sprites
+        if config.NO_BACKGROUND:
+            self.background_image = pygame.Surface(self.width, self.height)
+            self.background_image.fill(self.background_color)
+        else:
+            self.background_image = self.resources.get('main-screen')
+
+        self.player_panel = PlayerPanel(rect=pygame.Rect(1, 18, 274, 992))
 
         # Создание кнопки
-        self.next_turn_button = Button(300, 500, 200, 50, "Следующий ход", self.button_font, colors.GRAY, colors.DARK_GRAY, colors.BLACK)
+        self.next_turn_button = Button(
+            rect=pygame.Rect(300, 500, 200, 50),
+            text="Следующий ход",
+        )
+        self.next_turn_button.label.font = self.resources.get('small_font')
+        self.next_turn_button.label.render()
+        self.next_turn_button.on_click = self.on_next_turn_button_click
 
         # Игровые параметры
         self.players = [
@@ -88,16 +115,16 @@ class Game:
                 (255, 0, 0),
                 # 0,
                 # 1000,
-                token=pygame.transform.scale(portraits[0], (64, 64)),
-                avatar=portraits[0],
+                token=pygame.transform.scale(self.resources.get('portraits')[0], (64, 64)),
+                avatar=self.resources.get('portraits')[0],
             ),
             Player(
                 "Игрок 2",
                 (0, 255, 0),
                 # 0,
                 # 1000,
-                token=pygame.transform.scale(portraits[1], (64, 64)),
-                avatar=portraits[1],
+                token=pygame.transform.scale(self.resources.get('portraits')[1], (64, 64)),
+                avatar=self.resources.get('portraits')[1],
             ),
         ]
         self.current_player_id = None  # Индекс текущего игрока
@@ -105,7 +132,7 @@ class Game:
         self.next_turn = True
 
         # Создаем список клеток для игрового поля
-        self.field = Field(logos)
+        self.field = Field(self.resources.get('logos'))
 
     def start(self):
         """Start game."""
@@ -147,7 +174,12 @@ class Game:
         if tile.tile_type == "property":
             if not tile.is_owned():
                 # Клетка свободна, предложение купить
-                self.window = BuyWindow(self.screen, self.button_font, tile, self.on_buy)
+                self.window = BuyWindow(
+                    self.screen,
+                    self.resources.get('small_font'),
+                    tile,
+                    self.on_buy,
+                )
             else:
                 # Клетка занята, оплата аренды
                 owner = tile.owner
@@ -156,6 +188,9 @@ class Game:
                         self.current_player.pay_rent(owner, tile.rent)
 
         self.next_turn = False
+
+    def on_next_turn_button_click(self):
+        self.next_turn = True
 
     def get_events(self):
         for event in pygame.event.get():
@@ -186,12 +221,11 @@ class Game:
                 continue
 
             # Проверка нажатия кнопки мышью
-            if self.next_turn_button.is_clicked(event):
-                self.next_turn = True
+            self.next_turn_button.process_event(event)
 
             # Проверка нажатия клавиши (например, пробел для следующего хода)
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                self.next_turn = True
+                self.on_next_turn_button_click()
 
             self.field.update(event)
 
@@ -217,18 +251,14 @@ class Game:
 
         self.screen.blit(self.player_panel.image, self.player_panel.rect)
 
-        # Отображение баланса
-        # player1_text = self.FONT.render(f"Игрок 1: {self.players[0].balance}₽", True, colors.BLACK)
-        # self.screen.blit(player1_text, (50, 50))
-
-        # player2_text = self.FONT.render(f"Игрок 2: {self.players[1].balance}₽", True, colors.BLACK)
-        # self.screen.blit(player2_text, (50, 100))
-
         # Отрисовка кнопки
-        self.next_turn_button.draw(self.screen)
+        next_turn_button_group = pygame.sprite.Group(self.next_turn_button)
+        self.next_turn_button.render()
+        next_turn_button_group.draw(self.screen)
 
         # Отображение текущего хода
-        turn_text = self.FONT.render(f"Ход: {self.turn}", True, colors.BLACK)
+        turn_text_font = self.resources.get('big_font')
+        turn_text = turn_text_font.render(f"Ход: {self.turn}", True, colors.BLACK)
         self.screen.blit(turn_text, (350, 450))
 
         if self.window is not None:
