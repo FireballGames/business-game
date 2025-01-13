@@ -1,5 +1,26 @@
+"""Объявление класса Player."""
+
 class Player:
-    def __init__(self, name, color, token_position=0, balance=60000, token=None, avatar=None, properties=None, in_jail=False, turns_in_jail=0, inventory=None):
+    """Данные игрока."""
+
+    # TODO: Fix this lint warnings
+    # pylint: disable=too-many-instance-attributes
+    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-positional-arguments
+
+    def __init__(
+        self,
+        name: str,
+        color,
+        token_position=0,
+        balance=60000,
+        token=None,
+        avatar=None,
+        properties=None,
+        in_jail=False,
+        turns_in_jail=0,
+        inventory=None,
+    ):
         """
         Инициализация игрока.
 
@@ -82,4 +103,5 @@ class Player:
         self.turns_in_jail = 0
 
     def __repr__(self):
-        return f"Player(name={self.name}, balance={self.balance}, position={self.token_position}, properties={len(self.properties)})"
+        return f"Player(name={self.name}, balance={self.balance}, " \
+            + f"position={self.token_position}, properties={len(self.properties)})"

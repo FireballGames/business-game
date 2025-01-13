@@ -1,7 +1,21 @@
+"""Button controls to use in game.
+
+Classes:
+
+    Button
+"""
+
 import pygame
 
 
 class Button:
+    """In-game button."""
+
+    # TODO: Fix this lint warnings
+    # pylint: disable=too-many-instance-attributes
+    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-positional-arguments
+
     def __init__(self, x, y, width, height, text, font, color, hover_color, text_color):
         """
         Инициализация кнопки.

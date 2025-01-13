@@ -1,3 +1,15 @@
+"""Information about colors used in game.
+
+Constants:
+
+    WHITE
+    BLACK
+    GRAY
+    GOLD
+    DARK_GRAY
+
+"""
+
 # Цвета
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)

@@ -1,8 +1,12 @@
+"""Модуль, содержащий панель с информацией об игроке."""
+
 import pygame
 import colors
 
 
 class Label(pygame.sprite.Sprite):
+    """Текстовая информация как спрайт."""
+
     def __init__(self, *groups, color=colors.BLACK, font=None, rect=None):
         super().__init__(*groups)
         self.rect = rect
@@ -12,10 +16,20 @@ class Label(pygame.sprite.Sprite):
         self.color = color
 
     def render(self, text):
+        """Создаёт изображение из текста.
+
+        Args:
+            text (string): Текст, из которого предстоит сделать изображение.
+        """
         self.image = self.font.render(text, True, self.color)
+
+    def __repr__(self):
+        return f"Label(rect={self.rect})"
 
 
 class PlayerPanel(pygame.sprite.Sprite):
+    """Панель информации об игроке."""
+
     def __init__(self, *groups, rect=None):
         super().__init__(*groups)
         self.background = pygame.image.load("res/player-panel.png").convert_alpha()
@@ -39,6 +53,13 @@ class PlayerPanel(pygame.sprite.Sprite):
         )
 
     def render(self, player, turn, players):
+        """Обновление панели.
+
+        Args:
+            player (Player): текущий игрок
+            turn (number): текущий тур
+            players (List[Player]): список всех игроков
+        """
         self.name_label.color = player.color
         self.name_label.render(player.name)
 
@@ -77,3 +98,6 @@ class PlayerPanel(pygame.sprite.Sprite):
         # self.image.blit(self.turn_label.image, self.turn_label.rect)
         self.controls.draw(self.image)
         labels.draw(self.image)
+
+    def __repr__(self):
+        return f"PlayerPanel(rect={self.rect})"

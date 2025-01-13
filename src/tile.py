@@ -1,13 +1,41 @@
+"""Game field tile.
+
+Classes
+
+    Tile
+"""
+
 import pygame
 import colors
 
 
+# TODO: Fix this lint warnings
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-positional-arguments
+# pylint: disable=too-many-locals
+
 class Tile:
+    """Game field tile."""
+
     # Размеры клетки
     TILE_WIDTH = 256
+    """Tile width."""
     TILE_HEIGHT =128
+    """Tile height."""
 
-    def __init__(self, tile_id, name, price, rent=None, tile_type="property", owner=None, logo=None, group=None, position=(0, 0)):
+    def __init__(
+        self,
+        tile_id,
+        name,
+        price,
+        rent=None,
+        tile_type="property",
+        owner=None,
+        logo=None,
+        group=None,
+        position=(0, 0),
+    ):
         """
         Инициализация клетки.
 
@@ -33,7 +61,7 @@ class Tile:
         self.owner = owner
         self.tile_type = tile_type
         self.logo = logo  # Логотип или изображение для отрисовки
-        self.group = group  # Группа, к которой относится предприятие (например, "Автомобильное производство")
+        self.group = group  # Группа, к которой относится предприятие
 
         self.position = position
         self.logo_index = None
@@ -100,12 +128,14 @@ class Tile:
         center_y = offset_y + iso_y * self.TILE_HEIGHT // 2
 
         # Цвет группы клетки
-        group_color = self.group.color if self.group is not None else (200, 200, 200)  # Если группа не найдена, серый цвет
+        group_color = self.group.color if self.group is not None else (200, 200, 200)
+        # Если группа не найдена, серый цвет
 
         # Цвет владельца
         owner_color = colors.GOLD
         if self.is_owned():
-            owner_color = self.owner.color or (255, 255, 255)  # Если владелец не найден, белый цвет
+            owner_color = self.owner.color or (255, 255, 255)
+            # Если владелец не найден, белый цвет
 
         # Рисуем клетку как ромб
         points = [
@@ -135,13 +165,16 @@ class Tile:
         screen.blit(text, (center_x - self.TILE_WIDTH // 4, center_y + 8))
 
         # Отображение фишек игроков, находящихся на клетке
-        quarter_width = self.TILE_WIDTH // 4
-        quarter_height = self.TILE_HEIGHT // 4
         start_x = center_x - self.TILE_WIDTH // 2
-        start_y = center_y - quarter_height
+        start_y = center_y - self.TILE_HEIGHT // 4
         for player_id, player in enumerate(players):
             if player.token_position == self.tile_id:
                 # Координаты для фишки
-                token_x = start_x + quarter_width * (player_id % 2) + quarter_width * (player_id // 2) + quarter_width // 2 # center_x + self.TILE_WIDTH // 4
-                token_y = start_y + quarter_height * (player_id % 2) - quarter_height * (player_id // 2)  # center_y + self.TILE_HEIGHT // 4 + player_id * 10
+                token_x = start_x + self.TILE_WIDTH // 4 * (player_id % 2) \
+                    + self.TILE_WIDTH // 4 * (player_id // 2) \
+                    + self.TILE_WIDTH // 8
+                    # center_x + self.TILE_WIDTH // 4
+                token_y = start_y + self.TILE_HEIGHT // 4 * (player_id % 2) \
+                    - self.TILE_HEIGHT // 4 * (player_id // 2)
+                    # center_y + self.TILE_HEIGHT // 4 + player_id * 10
                 screen.blit(player.token, (token_x, token_y))
