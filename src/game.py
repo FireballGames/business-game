@@ -7,6 +7,7 @@ import pygame
 import colors
 import config
 from controls.button import Button
+from game_resources import GameResources
 from buy_window import BuyWindow
 from field import Field
 from player import Player
@@ -14,23 +15,6 @@ from main_panel import MainPanel
 from player_panel import PlayerPanel
 from tile_panel import TilePanel
 from sprite_loader import load_logos, load_portraits
-
-
-class GameResources:
-    def __init__(self):
-        self.__resources = {
-            # Images
-            'main-screen': pygame.image.load("res/main-screen.png").convert_alpha(),
-            # Spritesheets
-            'logos': load_logos(),
-            'portraits': load_portraits(),
-            # Fonts
-            'big_font': pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 36),
-            'small_font': pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 24),
-        }
-
-    def get(self, resource_id):
-        return self.__resources.get(resource_id)
 
 
 class Game:
@@ -52,9 +36,6 @@ class Game:
         # Создаём окно
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption(self.title)
-
-        # Resources
-        self.resources = {}
 
         # Спрайты
         self.background_image = None
@@ -115,21 +96,21 @@ class Game:
         logging.debug("Загрузка игровых данных")
 
         # Load resources
-        self.resources = GameResources()
+        GameResources.load()
 
         # Load sprites
         if config.NO_BACKGROUND:
             self.background_image = pygame.Surface(self.width, self.height)
             self.background_image.fill(self.background_color)
         else:
-            self.background_image = self.resources.get('main-screen')
+            self.background_image = GameResources.get('main-screen')
 
         # Создание кнопки
         self.next_turn_button = Button(
             rect=pygame.Rect(300, 500, 200, 50),
             text="Следующий ход",
         )
-        self.next_turn_button.label.font = self.resources.get('small_font')
+        self.next_turn_button.label.font = GameResources.get('small_font')
         self.next_turn_button.label.render()
         self.next_turn_button.on_click = self.on_next_turn_button_click
 
@@ -140,16 +121,16 @@ class Game:
                 (255, 0, 0),
                 # 0,
                 # 1000,
-                token=pygame.transform.scale(self.resources.get('portraits')[0], (64, 64)),
-                avatar=self.resources.get('portraits')[0],
+                token=pygame.transform.scale(GameResources.get('portraits')[0], (64, 64)),
+                avatar=GameResources.get('portraits')[0],
             ),
             Player(
                 "Игрок 2",
                 (0, 255, 0),
                 # 0,
                 # 1000,
-                token=pygame.transform.scale(self.resources.get('portraits')[1], (64, 64)),
-                avatar=self.resources.get('portraits')[1],
+                token=pygame.transform.scale(GameResources.get('portraits')[1], (64, 64)),
+                avatar=GameResources.get('portraits')[1],
             ),
         ]
         self.current_player_id = None  # Индекс текущего игрока
@@ -157,7 +138,7 @@ class Game:
         self.next_turn = True
 
         # Создаем список клеток для игрового поля
-        self.field = Field(self.resources.get('logos'))
+        self.field = Field(GameResources.get('logos'))
 
         self.player_panel = PlayerPanel(self.panels)
         self.tile_panel = TilePanel(self.panels)
@@ -210,7 +191,7 @@ class Game:
                 # Клетка свободна, предложение купить
                 self.window = BuyWindow(
                     self.screen,
-                    self.resources.get('small_font'),
+                    GameResources.get('small_font'),
                     tile,
                     self.on_buy,
                 )
@@ -292,7 +273,7 @@ class Game:
         next_turn_button_group.draw(self.screen)
 
         # Отображение текущего хода
-        turn_text_font = self.resources.get('big_font')
+        turn_text_font = GameResources.get('big_font')
         turn_text = turn_text_font.render(f"Ход: {self.turn}", True, colors.BLACK)
         self.screen.blit(turn_text, (350, 450))
 
