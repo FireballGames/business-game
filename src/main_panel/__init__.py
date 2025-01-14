@@ -19,6 +19,9 @@ class MainPanel(pygame.sprite.Sprite):
         self.action_panel = ActionPanel(self.panels)
         self.character_panel = CharacterPanel(self.panels)
 
+        print("Update panel")
+        self.property_panel.update()
+
     def adapt_panels(self):
         rect = self.image.get_rect()
 

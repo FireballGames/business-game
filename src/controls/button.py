@@ -31,7 +31,7 @@ class Button(pygame.sprite.Sprite):
         """
         super().__init__(groups)
         self.rect = rect
-        self.image = pygame.Surface(rect.size)
+        self.image = pygame.Surface(rect.size, pygame.SRCALPHA)
 
         self.label = Label(rect=self.image.get_rect())
         self.label.text = text

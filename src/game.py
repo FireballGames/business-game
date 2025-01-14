@@ -14,7 +14,6 @@ from player import Player
 from main_panel import MainPanel
 from player_panel import PlayerPanel
 from tile_panel import TilePanel
-from sprite_loader import load_logos, load_portraits
 
 
 class Game:
