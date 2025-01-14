@@ -11,8 +11,9 @@ class PlayerPanel(pygame.sprite.Sprite):
     def __init__(self, *groups, rect=None):
         super().__init__(*groups)
         self.background = pygame.image.load("res/player-panel.png").convert_alpha()
-        self.rect = rect if rect is not None else self.background.get_rect()
-        self.image = pygame.Surface(self.rect.size)
+        # self.rect = rect if rect is not None else self.background.get_rect()
+        self.rect = rect if rect is not None else pygame.Rect(0, 0, 277, 992)
+        self.image = pygame.Surface(self.rect.size, pygame.SRCALPHA)
 
         self.font = pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 24)
 
@@ -69,11 +70,8 @@ class PlayerPanel(pygame.sprite.Sprite):
             label.text = tile.name
             label_rect = label_rect.move(0, 32)
 
-        self.image.fill(colors.WHITE)
         self.image.blit(player.avatar, (32, 51))
         self.image.blit(self.background, (0, 0))
-        # self.image.blit(self.name_label.image, self.name_label.rect)
-        # self.image.blit(self.turn_label.image, self.turn_label.rect)
         self.controls.draw(self.image)
         labels.draw(self.image)
 
