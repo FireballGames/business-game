@@ -1,45 +1,50 @@
 import pygame
 from controls.button import Button
-from controls.panel import Panel
 from game_resources import GameResources
 
 
-class PropertyPanel(Panel):
+class PropertyPanelGroup(pygame.sprite.Group):
     width = 1250
     height = 172
 
-    def __init__(self, *groups, rect=None):
-        super().__init__(*groups, rect=rect)
-        self.image.fill((0, 0, 0, 128))
+    def __init__(self, rect=None):
+        super().__init__()
+        self.rect = rect if rect is not None else pygame.Rect(0, 0, self.width, self.height)
 
         font = GameResources.get('big_font')
 
-        button_rect = pygame.Rect(1 + 4, 1, 108, 172)
+        self.buttons = pygame.sprite.Group()
+        left = self.rect.left
+        top = self.rect.top
+        button_rect = pygame.Rect(left + 4 + 1, top + 1, 108, 172)
         for _ in range(10):
             button = Button(
-                self.controls,
+                self,
+                self.buttons,
                 rect=button_rect,
                 text="Кнопка",
             )
             button.label.font = font
             button.color = (200, 200, 200, 128)
             button_rect = button_rect.move(110, 0)
-            print(button_rect)
 
         portrait = Button(
-            self.controls,
-            rect=pygame.Rect(1108, 0, 142, 172),
+            self,
+            rect=pygame.Rect(left + 1108, top, 142, 172),
             text="Портрет",
         )
         portrait.label.font = font
         portrait.color = (200, 0, 0, 128)
+        self.portrait_group = pygame.sprite.GroupSingle(portrait)
 
-    def update(self):
-        print("DRAW", self.controls)
-        # for control in self.controls:
-        #     control.update()
+    def adapt(self):
+        left = self.rect.left
+        top = self.rect.top
 
-        # self.image.fill((0, 0, 255, 32))
-        self.controls.update()
-        self.controls.draw(self.image)
-        # super().update()
+        button_rect = pygame.Rect(left + 4 + 1, top + 1, 108, 172)
+        for button in self.buttons:
+            button.rect = button_rect
+            button_rect = button_rect.move(110, 0)
+
+        self.portrait_group.sprite.rect = pygame.Rect(left + 1108, top, 142, 172)
+

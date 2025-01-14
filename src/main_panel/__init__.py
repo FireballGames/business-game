@@ -3,7 +3,7 @@ from controls.panel import Panel
 from .action_panel import ActionPanel
 from .character_panel import CharacterPanel
 from .field_panel import FieldPanel
-from .property_panel import PropertyPanel
+from .property_panel import PropertyPanelGroup
 
 
 class MainPanel(pygame.sprite.Sprite):
@@ -15,25 +15,25 @@ class MainPanel(pygame.sprite.Sprite):
         self.panels = pygame.sprite.Group()
         self.no_panels = pygame.sprite.Group()
         self.field_panel = FieldPanel(self.panels, field=field)
-        self.property_panel = PropertyPanel(self.panels)
         self.action_panel = ActionPanel(self.panels)
         self.character_panel = CharacterPanel(self.panels)
 
-        print("Update panel")
-        self.property_panel.update()
+        self.property_panel_group = PropertyPanelGroup()
 
     def adapt_panels(self):
         rect = self.image.get_rect()
 
-        self.property_panel.rect.centerx = rect.width // 2
+        self.property_panel_group.rect.top = 18  # self.rect.top
+        self.property_panel_group.rect.centerx = self.rect.centerx
+        self.property_panel_group.adapt()
 
         self.action_panel.rect.centerx = rect.width // 2
         self.action_panel.rect.bottom = rect.height
 
-        space = (rect.width - self.property_panel.rect.width) // 2
+        space = (rect.width - self.property_panel_group.rect.width) // 2
         is_sticky = space < self.character_panel.rect.width
         if is_sticky:
-            self.character_panel.rect.top = self.property_panel.rect.bottom
+            self.character_panel.rect.top = self.property_panel_group.rect.bottom
         else:
             self.character_panel.rect.centery = rect.centery
         self.character_panel.rect.right = rect.right

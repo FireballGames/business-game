@@ -87,8 +87,8 @@ class Game:
         main_panel_left = self.player_panel.rect.right + 10
         main_panel_right = self.tile_panel.rect.left - 10
         self.main_panel.rect.left = main_panel_left
-        self.main_panel.rect.top = margin_top
-        self.main_panel.resize((main_panel_right - main_panel_left, height))
+        self.main_panel.rect.top = margin_top + 172
+        self.main_panel.resize((main_panel_right - main_panel_left, height - 172 - 227))
 
     def load(self):
         """Load game data before start."""
@@ -254,6 +254,8 @@ class Game:
         if self.current_player_id is not None:
             self.player_panel.render(self.current_player, self.turn, self.players)
 
+        self.main_panel.property_panel_group.update()
+
     def draw(self):
         """Draw game screen."""
         # Отрисовка
@@ -265,6 +267,8 @@ class Game:
 
         self.panels.update()
         self.panels.draw(self.screen)
+
+        self.main_panel.property_panel_group.draw(self.screen)
 
         # Отрисовка кнопки
         next_turn_button_group = pygame.sprite.Group(self.next_turn_button)
