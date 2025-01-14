@@ -253,7 +253,7 @@ class Game:
 
         # Отрисовка кнопки
         next_turn_button_group = pygame.sprite.Group(self.next_turn_button)
-        self.next_turn_button.render()
+        self.next_turn_button.update()
         next_turn_button_group.draw(self.screen)
 
         # Отображение текущего хода
