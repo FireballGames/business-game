@@ -242,6 +242,7 @@ class Game:
 
         self.main_panel.property_panel_group.update()
         self.main_panel.action_panel_group.update()
+        self.main_panel.character_panel_group.update()
 
     def draw(self):
         """Draw game screen."""
@@ -257,6 +258,7 @@ class Game:
 
         self.main_panel.property_panel_group.draw(self.screen)
         self.main_panel.action_panel_group.draw(self.screen)
+        self.main_panel.character_panel_group.draw(self.screen)
 
         # Отрисовка кнопки
         next_turn_button_group = pygame.sprite.Group(self.next_turn_button)

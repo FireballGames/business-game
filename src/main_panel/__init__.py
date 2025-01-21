@@ -1,7 +1,7 @@
 import pygame
 from controls.panel import Panel
 from .action_panel import ActionPanelGroup
-from .character_panel import CharacterPanel
+from .character_panel import CharacterPanelGroup
 from .field_panel import FieldPanel
 from .property_panel import PropertyPanelGroup
 
@@ -15,10 +15,10 @@ class MainPanel(pygame.sprite.Sprite):
         self.panels = pygame.sprite.Group()
 
         self.field_panel = FieldPanel(self.panels, field=field)
-        self.character_panel = CharacterPanel(self.panels)
 
         self.property_panel_group = PropertyPanelGroup()
         self.action_panel_group = ActionPanelGroup()
+        self.character_panel_group = CharacterPanelGroup()
 
     def resize(self, rect):
         self.rect = pygame.Rect(rect)
@@ -34,12 +34,12 @@ class MainPanel(pygame.sprite.Sprite):
         self.action_panel_group.rect.bottom = self.rect.bottom
 
         space = (inner_rect.width - self.property_panel_group.rect.width) // 2
-        is_sticky = space < self.character_panel.rect.width
+        is_sticky = space < self.character_panel_group.rect.width
         if is_sticky:
-            self.character_panel.rect.top = self.property_panel_group.rect.bottom
+            self.character_panel_group.rect.top = self.property_panel_group.rect.bottom
         else:
-            self.character_panel.rect.centery = inner_rect.centery
-        self.character_panel.rect.right = inner_rect.right
+            self.character_panel_group.rect.centery = self.rect.centery
+        self.character_panel_group.rect.right = self.rect.right
 
         self.field_panel.resize(rect.size)
 
