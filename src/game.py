@@ -6,8 +6,10 @@ import random
 import pygame
 import colors
 import config
-from controls.button import Button
 from game_resources import GameResources
+from controls.button import Button
+from sprite_groups.align import horyzontal, vertical
+from sprite_groups.main_gui import MainGUI
 from buy_window import BuyWindow
 from field import Field
 from player import Player
@@ -38,7 +40,7 @@ class Game:
 
         # Спрайты
         self.background_image = None
-        self.panels = pygame.sprite.Group()
+        self.main_gui = MainGUI()
         self.player_panel = None
         self.main_panel = None
         self.tile_panel = None
@@ -67,28 +69,6 @@ class Game:
     @property
     def current_player(self):
         return self.players[self.current_player_id]
-
-    def adapt_panels(self):
-        margin_top = 18
-        margin_right = 0
-        margin_bottom = 18
-        margin_left = 0
-
-        height = self.height - margin_top - margin_bottom
-
-        self.player_panel.rect.left = margin_left
-        self.player_panel.rect.top = margin_top
-        self.player_panel.rect.height = height
-
-        self.tile_panel.rect.right = self.width - margin_right
-        self.tile_panel.rect.top = margin_top
-        self.tile_panel.rect.height = height
-
-        main_panel_left = self.player_panel.rect.right + 10
-        main_panel_right = self.tile_panel.rect.left - 10
-        self.main_panel.rect.left = main_panel_left
-        self.main_panel.rect.top = margin_top + 172
-        self.main_panel.resize((main_panel_right - main_panel_left, height - 172 - 227))
 
     def load(self):
         """Load game data before start."""
@@ -139,14 +119,20 @@ class Game:
         # Создаем список клеток для игрового поля
         self.field = Field(GameResources.get('logos'))
 
-        self.player_panel = PlayerPanel(self.panels)
-        self.tile_panel = TilePanel(self.panels)
+        self.player_panel = PlayerPanel(self.main_gui)
+        self.main_gui.player_panel = self.player_panel
+
+        self.tile_panel = TilePanel(self.main_gui)
+        self.main_gui.tile_panel = self.tile_panel
+
         self.main_panel = MainPanel(
-            self.panels,
+            self.main_gui,
             field=self.field,
         )
+        self.main_gui.main_panel = self.main_panel
 
-        self.adapt_panels()
+        main_gui_rect = self.screen.get_rect().inflate(0, -18)
+        self.main_gui.resize(main_gui_rect)
 
     def start(self):
         """Start game."""
@@ -265,8 +251,8 @@ class Game:
         # Отрисовка игрового поля
         self.main_panel.update_data(self.players)
 
-        self.panels.update()
-        self.panels.draw(self.screen)
+        self.main_gui.update()
+        self.main_gui.draw(self.screen)
 
         self.main_panel.property_panel_group.draw(self.screen)
 

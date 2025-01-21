@@ -40,8 +40,8 @@ class MainPanel(pygame.sprite.Sprite):
 
         self.field_panel.resize(rect.size)
 
-    def resize(self, size):
-        self.rect.size = size
+    def resize(self, rect):
+        self.rect = pygame.Rect(rect)
         self.image = pygame.Surface(self.rect.size, pygame.SRCALPHA)
         self.adapt_panels()
 
