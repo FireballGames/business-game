@@ -36,8 +36,12 @@ class Button(pygame.sprite.Sprite):
         self.label = Label(rect=self.image.get_rect())
         self.label.text = text
 
+        self.background_image = None
         self.color = colors.GRAY
+
         self.hover_color = colors.DARK_GRAY
+        self.hover = pygame.Surface(rect.size, pygame.SRCALPHA)
+        # pygame.draw.rect(self.hover, hover_color, rect)
 
         self.on_click = None
 
@@ -61,10 +65,21 @@ class Button(pygame.sprite.Sprite):
         Отрисовывает кнопку на экране.
         """
         rect = self.image.get_rect()
+
+        if self.background_image is not None:
+            self.image.blit(self.background_image, (0, 0))
+
         if self.is_hovered:
-            pygame.draw.rect(self.image, self.hover_color, rect)
+            if self.hover is not None:
+                hover = pygame.Surface(rect.size, pygame.SRCALPHA)
+                # pygame.draw.rect(hover, self.hover_color, rect)
+                hover.fill(self.hover_color)
+                self.image.blit(hover, rect)
+                # pygame.draw.rect(self.image, self.hover_color, rect)
         else:
-            pygame.draw.rect(self.image, self.color, rect)
+            if self.color is not None:
+                # pygame.draw.rect(self.image, self.color, rect)
+                self.image.fill(self.color)
 
         # Отрисовка текста
         self.label.render()

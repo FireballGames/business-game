@@ -1,4 +1,5 @@
 import pygame
+import colors
 from controls.button import Button
 from game_resources import GameResources
 
@@ -25,7 +26,15 @@ class PropertyPanelGroup(pygame.sprite.Group):
                 text="Кнопка",
             )
             button.label.font = font
-            button.color = (200, 200, 200, 128)
+
+            button.color = None
+            button.hover_color = colors.TRANSPARENT_DARK_GRAY
+
+            button.background_image = GameResources.get('property-button')
+
+            button.hover = pygame.Surface(button.rect.size, pygame.SRCALPHA)
+            pygame.draw.rect(button.hover, colors.TRANSPARENT_DARK_GRAY, button.image.get_rect())
+
             button_rect = button_rect.move(110, 0)
 
         portrait = Button(
@@ -34,7 +43,14 @@ class PropertyPanelGroup(pygame.sprite.Group):
             text="Портрет",
         )
         portrait.label.font = font
-        portrait.color = (200, 0, 0, 128)
+        # portrait.color = (200, 0, 0, 128)
+        portrait.hover_color = colors.TRANSPARENT_DARK_GRAY
+
+        portrait.background_image = GameResources.get('portrait-button')
+
+        portrait.hover = pygame.Surface(portrait.rect.size, pygame.SRCALPHA)
+        pygame.draw.rect(portrait.hover, colors.TRANSPARENT_DARK_GRAY, portrait.image.get_rect())
+
         self.portrait_group = pygame.sprite.GroupSingle(portrait)
 
     def adapt(self):

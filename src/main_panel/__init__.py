@@ -40,6 +40,7 @@ class MainPanel(pygame.sprite.Sprite):
         else:
             self.character_panel_group.rect.centery = self.rect.centery
         self.character_panel_group.rect.right = self.rect.right
+        self.character_panel_group.resize(self.character_panel_group.rect)
 
         self.field_panel.resize(rect.size)
 

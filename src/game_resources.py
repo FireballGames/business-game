@@ -65,6 +65,9 @@ class GameResources:
             # Fonts
             'big_font': pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 36),
             'small_font': pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 24),
+            # Controls
+            'property-button': pygame.image.load("res/property-button.png").convert_alpha(),
+            'portrait-button': pygame.image.load("res/portrait.png").convert_alpha(),
         }
 
         logging.debug("Ресурсы загружены")
