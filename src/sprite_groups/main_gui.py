@@ -1,5 +1,6 @@
 import pygame
 from .align import horyzontal, vertical
+from player_panel import PlayerPanel
 
 
 class MainGUI(pygame.sprite.Group):
@@ -9,13 +10,11 @@ class MainGUI(pygame.sprite.Group):
         self.rect = pygame.Rect(0, 0, 0, 0)
         self.inner_rect = self.rect.copy()
 
-        self.player_panel = None
+        self.player_panel = PlayerPanel(self)
         self.tile_panel = None
         self.main_panel = None
 
-    def resize(self, rect):
-        self.rect = pygame.Rect(rect)
-
+    def update(self):
         rects = list(horyzontal(
             self.rect.copy(),
             left=[self.player_panel.rect],
@@ -32,3 +31,5 @@ class MainGUI(pygame.sprite.Group):
         ))
 
         self.main_panel.resize(self.inner_rect)
+
+        super().update()

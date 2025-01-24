@@ -119,8 +119,7 @@ class Game:
         # Создаем список клеток для игрового поля
         self.field = Field(GameResources.get('logos'))
 
-        self.player_panel = PlayerPanel(self.main_gui)
-        self.main_gui.player_panel = self.player_panel
+        self.player_panel = self.main_gui.player_panel
 
         self.tile_panel = TilePanel(self.main_gui)
         self.main_gui.tile_panel = self.tile_panel
@@ -130,9 +129,6 @@ class Game:
             field=self.field,
         )
         self.main_gui.main_panel = self.main_panel
-
-        main_gui_rect = self.screen.get_rect().inflate(0, -18)
-        self.main_gui.resize(main_gui_rect)
 
     def start(self):
         """Start game."""
@@ -243,6 +239,8 @@ class Game:
         self.main_panel.property_panel_group.update()
         self.main_panel.action_panel_group.update()
         self.main_panel.character_panel_group.update()
+
+        self.main_gui.rect = self.screen.get_rect().inflate(0, -18)
 
     def draw(self):
         """Draw game screen."""
