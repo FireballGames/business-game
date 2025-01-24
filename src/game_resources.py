@@ -63,6 +63,7 @@ class GameResources:
             'logos': load_logos(),
             'portraits': load_portraits(),
             # Fonts
+            'header_font': pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 48),
             'big_font': pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 36),
             'small_font': pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 24),
             # Controls

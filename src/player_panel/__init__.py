@@ -3,10 +3,19 @@
 import pygame
 import colors
 from controls.label import Label
+from game_resources import GameResources
 
 
 class PlayerPanel(pygame.sprite.Sprite):
-    """Панель информации об игроке."""
+    """Панель информации об игроке.
+    
+    - Показ текущего состояния игрока:
+        - Баланс (рубли).
+        - Список предприятий.
+        - Статус (в тюрьме, свободен).
+        - Возможность открыть подробную статистику.
+
+    """
 
     def __init__(self, *groups, rect=None):
         super().__init__(*groups)
@@ -15,13 +24,13 @@ class PlayerPanel(pygame.sprite.Sprite):
         self.rect = rect if rect is not None else pygame.Rect(0, 0, 277, 992)
         self.image = pygame.Surface(self.rect.size, pygame.SRCALPHA)
 
-        self.font = pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 24)
+        self.font = GameResources.get('small_font')
 
         self.controls = pygame.sprite.Group()
         self.name_label = Label(
             self.controls,
             rect=pygame.Rect(50, 420, 174, 64),
-            font=pygame.font.Font("res/fonts/OldStandardTT-Regular.ttf", 48),
+            font=GameResources.get('header_font'),
             color=colors.BLACK,
         )
         self.turn_label = Label(
