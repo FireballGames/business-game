@@ -1,6 +1,7 @@
 import pygame
 from .align import horyzontal, vertical
 from player_panel import PlayerPanel
+from tile_panel import TilePanel
 
 
 class MainGUI(pygame.sprite.Group):
@@ -11,7 +12,7 @@ class MainGUI(pygame.sprite.Group):
         self.inner_rect = self.rect.copy()
 
         self.player_panel = PlayerPanel(self)
-        self.tile_panel = None
+        self.tile_panel = TilePanel(self)
         self.main_panel = None
 
     def update(self):

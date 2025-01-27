@@ -14,8 +14,6 @@ from buy_window import BuyWindow
 from field import Field
 from player import Player
 from main_panel import MainPanel
-from player_panel import PlayerPanel
-from tile_panel import TilePanel
 
 
 class Game:
@@ -120,9 +118,7 @@ class Game:
         self.field = Field(GameResources.get('logos'))
 
         self.player_panel = self.main_gui.player_panel
-
-        self.tile_panel = TilePanel(self.main_gui)
-        self.main_gui.tile_panel = self.tile_panel
+        self.tile_panel = self.main_gui.tile_panel
 
         self.main_panel = MainPanel(
             self.main_gui,
@@ -234,7 +230,8 @@ class Game:
             self.window = None
 
         if self.current_player_id is not None:
-            self.player_panel.render(self.current_player, self.turn, self.players)
+            self.player_panel.render(self.current_player, self.turn)
+            self.tile_panel.render(self.turn, self.players)
 
         self.main_panel.property_panel_group.update()
         self.main_panel.action_panel_group.update()

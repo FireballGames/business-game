@@ -83,7 +83,8 @@ class Button(pygame.sprite.Sprite):
 
         # Отрисовка текста
         self.label.render()
-        self.image.blit(self.label.image, self.label.rect)
+        if self.label.image is not None:
+            self.image.blit(self.label.image, self.label.rect)
 
     def process_event(self, event):
         """
