@@ -1,7 +1,7 @@
 import pygame
 from controls.panel import Panel
 from .action_panel import ActionPanelGroup
-from .character_panel import CharacterPanelGroup
+from .turn_panel import TurnPanelGroup
 from .field_panel import FieldPanel
 from .property_panel import PropertyPanelGroup
 
@@ -18,7 +18,7 @@ class MainPanel(pygame.sprite.Sprite):
 
         self.property_panel_group = PropertyPanelGroup()
         self.action_panel_group = ActionPanelGroup()
-        self.character_panel_group = CharacterPanelGroup()
+        self.turn_panel_group = TurnPanelGroup()
 
     def resize(self, rect):
         self.rect = pygame.Rect(rect)
@@ -30,11 +30,11 @@ class MainPanel(pygame.sprite.Sprite):
         self.property_panel_group.rect.centerx = self.rect.centerx
         self.property_panel_group.rect.top = self.rect.top
 
-        self.character_panel_group.rect.width = self.rect.width
-        self.character_panel_group.rect.centerx = self.rect.centerx
-        self.character_panel_group.rect.bottom = self.rect.bottom
+        self.turn_panel_group.rect.width = self.rect.width
+        self.turn_panel_group.rect.centerx = self.rect.centerx
+        self.turn_panel_group.rect.bottom = self.rect.bottom
 
-        space_v = inner_rect.height - self.property_panel_group.rect.height - self.character_panel_group.rect.height
+        space_v = inner_rect.height - self.property_panel_group.rect.height - self.turn_panel_group.rect.height
         self.action_panel_group.rect.height = space_v
 
         space = (inner_rect.width - self.property_panel_group.rect.width) // 2
@@ -52,14 +52,14 @@ class MainPanel(pygame.sprite.Sprite):
 
     def update_data(self, turn, players):
         self.field_panel.players = players
-        self.character_panel_group.render(turn, players)
+        self.turn_panel_group.render(turn, players)
 
     def update(self):
         self.image.fill((0, 0, 255, 0))
 
         self.field_panel.update()
         self.property_panel_group.update()
-        self.character_panel_group.update()
+        self.turn_panel_group.update()
         self.action_panel_group.update()
 
         self.panels.draw(self.image)
@@ -69,4 +69,4 @@ class MainPanel(pygame.sprite.Sprite):
     def draw_panels(self, screen):
         self.property_panel_group.draw(screen)
         self.action_panel_group.draw(screen)
-        self.character_panel_group.draw(screen)
+        self.turn_panel_group.draw(screen)

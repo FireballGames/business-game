@@ -3,7 +3,7 @@ import colors
 from controls.label import Label
 from game_resources import GameResources
 
-class CharacterPanelGroup(pygame.sprite.Group):
+class TurnPanelGroup(pygame.sprite.Group):
     width = 1250
     height = 227
 
