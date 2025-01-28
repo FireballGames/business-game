@@ -26,9 +26,9 @@ class MainPanel(pygame.sprite.Sprite):
 
         inner_rect = self.image.get_rect()
 
+        self.property_panel_group.rect.width = self.rect.width
         self.property_panel_group.rect.centerx = self.rect.centerx
         self.property_panel_group.rect.top = self.rect.top
-        self.property_panel_group.adapt()
 
         self.action_panel_group.rect.centerx = self.rect.centerx
         self.action_panel_group.rect.bottom = self.rect.bottom

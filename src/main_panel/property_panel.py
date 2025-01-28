@@ -37,30 +37,39 @@ class PropertyPanelGroup(pygame.sprite.Group):
 
             button_rect = button_rect.move(110, 0)
 
-        portrait = Button(
+        self.portrait = Button(
             self,
             rect=pygame.Rect(left + 1108, top, 142, 172),
             text="Портрет",
         )
-        portrait.label.font = font
-        # portrait.color = (200, 0, 0, 128)
-        portrait.hover_color = colors.TRANSPARENT_DARK_GRAY
+        self.portrait.label.font = font
+        # self.portrait.color = (200, 0, 0, 128)
+        self.portrait.hover_color = colors.TRANSPARENT_DARK_GRAY
 
-        portrait.background_image = GameResources.get('portrait-button')
+        self.portrait.background_image = GameResources.get('portrait-button')
 
-        portrait.hover = pygame.Surface(portrait.rect.size, pygame.SRCALPHA)
-        pygame.draw.rect(portrait.hover, colors.TRANSPARENT_DARK_GRAY, portrait.image.get_rect())
+        self.portrait.hover = pygame.Surface(self.portrait.rect.size, pygame.SRCALPHA)
+        pygame.draw.rect(self.portrait.hover, colors.TRANSPARENT_DARK_GRAY, self.portrait.image.get_rect())
 
-        self.portrait_group = pygame.sprite.GroupSingle(portrait)
+        # self.portrait_group = pygame.sprite.GroupSingle(portrait)
 
-    def adapt(self):
-        left = self.rect.left
-        top = self.rect.top
+    def update(self):
+        self.empty()
 
-        button_rect = pygame.Rect(left + 4 + 1, top + 1, 108, 172)
+        left = self.rect.left + 4 + 1
+        top = self.rect.top + 1
+
+        buttons_width = self.rect.width - self.portrait.rect.width
+        max_buttons_count = buttons_width // 110
+        button_rect = pygame.Rect(left, top, 108, 172)
         for button in self.buttons:
             button.rect = button_rect
             button_rect = button_rect.move(110, 0)
 
-        self.portrait_group.sprite.rect = pygame.Rect(left + 1108, top, 142, 172)
+            if len(self) < max_buttons_count:
+                self.add(button)
 
+        self.portrait.rect.topright = self.rect.topright
+        self.add(self.portrait)
+
+        super().update()
