@@ -8,7 +8,6 @@ import colors
 import config
 from game_resources import GameResources
 from controls.button import Button
-from sprite_groups.align import horyzontal, vertical
 from sprite_groups.main_gui import MainGUI
 from buy_window import BuyWindow
 from field import Field

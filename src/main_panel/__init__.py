@@ -1,5 +1,6 @@
 import pygame
 from controls.panel import Panel
+from sprite_groups.align import vertical
 from .action_panel import ActionPanelGroup
 from .turn_panel import TurnPanelGroup
 from .field_panel import FieldPanel
@@ -24,18 +25,17 @@ class MainPanel(pygame.sprite.Sprite):
         self.rect = pygame.Rect(rect)
         self.image = pygame.Surface(self.rect.size, pygame.SRCALPHA)
 
-        inner_rect = self.image.get_rect()
+        panels = list(vertical(
+            self.rect.copy(),
+            top=[self.property_panel_group.rect],
+            bottom=[self.turn_panel_group.rect],
+        ))
 
-        self.property_panel_group.rect.width = self.rect.width
-        self.property_panel_group.rect.centerx = self.rect.centerx
-        self.property_panel_group.rect.top = self.rect.top
+        self.property_panel_group.rect = panels[0]
+        inner_rect = panels[1]
+        self.turn_panel_group.rect = panels[2]
 
-        self.turn_panel_group.rect.width = self.rect.width
-        self.turn_panel_group.rect.centerx = self.rect.centerx
-        self.turn_panel_group.rect.bottom = self.rect.bottom
-
-        space_v = inner_rect.height - self.property_panel_group.rect.height - self.turn_panel_group.rect.height
-        self.action_panel_group.rect.height = space_v
+        self.action_panel_group.rect.height = inner_rect.height
 
         space = (inner_rect.width - self.property_panel_group.rect.width) // 2
         is_sticky = space < self.action_panel_group.rect.width
