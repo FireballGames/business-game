@@ -30,17 +30,20 @@ class MainPanel(pygame.sprite.Sprite):
         self.property_panel_group.rect.centerx = self.rect.centerx
         self.property_panel_group.rect.top = self.rect.top
 
-        self.action_panel_group.rect.centerx = self.rect.centerx
-        self.action_panel_group.rect.bottom = self.rect.bottom
+        self.character_panel_group.rect.centerx = self.rect.centerx
+        self.character_panel_group.rect.bottom = self.rect.bottom
+
+        space_v = inner_rect.height - self.property_panel_group.rect.height - self.character_panel_group.rect.height
+        self.action_panel_group.rect.height = space_v
 
         space = (inner_rect.width - self.property_panel_group.rect.width) // 2
-        is_sticky = space < self.character_panel_group.rect.width
+        is_sticky = space < self.action_panel_group.rect.width
         if is_sticky:
-            self.character_panel_group.rect.top = self.property_panel_group.rect.bottom
+            self.action_panel_group.rect.top = self.property_panel_group.rect.bottom
         else:
-            self.character_panel_group.rect.centery = self.rect.centery
-        self.character_panel_group.rect.right = self.rect.right
-        self.character_panel_group.resize(self.character_panel_group.rect)
+            self.action_panel_group.rect.centery = self.rect.centery
+        self.action_panel_group.rect.right = self.rect.right
+        self.action_panel_group.update()
 
         self.field_panel.resize(rect.size)
 
