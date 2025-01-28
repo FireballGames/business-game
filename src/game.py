@@ -81,15 +81,6 @@ class Game:
         else:
             self.background_image = GameResources.get('main-screen')
 
-        # Создание кнопки
-        self.next_turn_button = Button(
-            rect=pygame.Rect(300, 500, 200, 50),
-            text="Следующий ход",
-        )
-        self.next_turn_button.label.font = GameResources.get('small_font')
-        self.next_turn_button.label.render()
-        self.next_turn_button.on_click = self.on_next_turn_button_click
-
         # Игровые параметры
         self.players = [
             Player(
@@ -124,6 +115,10 @@ class Game:
             field=self.field,
         )
         self.main_gui.main_panel = self.main_panel
+
+        # Создание кнопки
+        self.next_turn_button = self.main_panel.turn_panel_group.next_turn_button
+        self.next_turn_button.on_click = self.on_next_turn_button_click
 
     def start(self):
         """Start game."""
@@ -245,11 +240,6 @@ class Game:
         self.main_gui.update()
         self.main_gui.draw(self.screen)
         self.main_panel.draw_panels(self.screen)
-
-        # Отрисовка кнопки
-        next_turn_button_group = pygame.sprite.Group(self.next_turn_button)
-        self.next_turn_button.update()
-        next_turn_button_group.draw(self.screen)
 
         if self.window is not None:
             self.window.draw(self.screen)

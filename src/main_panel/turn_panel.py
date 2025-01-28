@@ -1,5 +1,6 @@
 import pygame
 import colors
+from controls.button import Button
 from controls.label import Label
 from game_resources import GameResources
 
@@ -22,6 +23,7 @@ class TurnPanelGroup(pygame.sprite.Group):
         self.font = GameResources.get('small_font')
 
         self.players = pygame.sprite.Group()
+        self.events = pygame.sprite.Group()
 
         self.turn_label = Label(
             self,
@@ -29,6 +31,14 @@ class TurnPanelGroup(pygame.sprite.Group):
             font=self.font,
             color=colors.BLACK,
         )
+
+        self.next_turn_button = Button(
+            self,
+            rect=pygame.Rect(0, 36, 200, 50),
+            text="Закончить ход",
+        )
+        self.next_turn_button.label.font = self.font
+        self.next_turn_button.label.render()
 
     def render(self, turn, players):
         """Обновление панели.
@@ -46,6 +56,7 @@ class TurnPanelGroup(pygame.sprite.Group):
 
         self.add(self.__temp_image)
         self.add(self.turn_label)
+        self.add(self.next_turn_button)
 
         self.players.empty()
         label_rect = pygame.Rect(self.rect.left + 200, self.rect.top, 174, 64)
@@ -66,11 +77,22 @@ class TurnPanelGroup(pygame.sprite.Group):
 
         self.__temp_image.image.fill((255, 0, 0, 32))
 
-        self.turn_label.rect.topleft = self.rect.topleft
+        inner_rect = self.rect.inflate(-8, -8)
 
-        label_rect = pygame.Rect(self.rect.left + 200, self.rect.top, 174, 64)
+        self.turn_label.rect.topleft = inner_rect.topleft
+
+        self.next_turn_button.rect.top = inner_rect.top + 48
+        self.next_turn_button.rect.left = inner_rect.left
+
+        player_rect = pygame.Rect(inner_rect.left + 200, inner_rect.top, 174, 64)
         for player in self.players:
-            player.rect = label_rect
-            label_rect = label_rect.move(0, 32)
+            player.rect = player_rect
+            player_rect = player_rect.move(0, 32)
+
+
+        event_rect = pygame.Rect(inner_rect.left + 400, inner_rect.top, 174, 64)
+        for event in self.events:
+            event.rect = event_rect
+            event_rect = event_rect.move(0, 32)
 
         super().update()
