@@ -229,13 +229,10 @@ class Game:
         if self.window is not None and not self.window.visible:
             self.window = None
 
+        self.main_panel.update_data(self.turn, self.players)
         if self.current_player_id is not None:
             self.player_panel.render(self.current_player, self.turn)
             self.tile_panel.render(self.turn, self.players)
-
-        self.main_panel.property_panel_group.update()
-        self.main_panel.action_panel_group.update()
-        self.main_panel.character_panel_group.update()
 
         self.main_gui.rect = self.screen.get_rect().inflate(0, -18)
 
@@ -246,14 +243,9 @@ class Game:
         self.screen.blit(self.background_image, (0, 0))
 
         # Отрисовка игрового поля
-        self.main_panel.update_data(self.players)
-
         self.main_gui.update()
         self.main_gui.draw(self.screen)
-
-        self.main_panel.property_panel_group.draw(self.screen)
-        self.main_panel.action_panel_group.draw(self.screen)
-        self.main_panel.character_panel_group.draw(self.screen)
+        self.main_panel.draw_panels(self.screen)
 
         # Отрисовка кнопки
         next_turn_button_group = pygame.sprite.Group(self.next_turn_button)

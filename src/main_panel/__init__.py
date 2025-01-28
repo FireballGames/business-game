@@ -30,6 +30,7 @@ class MainPanel(pygame.sprite.Sprite):
         self.property_panel_group.rect.centerx = self.rect.centerx
         self.property_panel_group.rect.top = self.rect.top
 
+        self.character_panel_group.rect.width = self.rect.width
         self.character_panel_group.rect.centerx = self.rect.centerx
         self.character_panel_group.rect.bottom = self.rect.bottom
 
@@ -43,17 +44,29 @@ class MainPanel(pygame.sprite.Sprite):
         else:
             self.action_panel_group.rect.centery = self.rect.centery
         self.action_panel_group.rect.right = self.rect.right
-        self.action_panel_group.update()
 
         self.field_panel.resize(rect.size)
 
     def process_event(self, event):
         self.field_panel.process_event(event)
 
-    def update_data(self, players):
+    def update_data(self, turn, players):
         self.field_panel.players = players
+        self.character_panel_group.render(turn, players)
 
     def update(self):
         self.image.fill((0, 0, 255, 0))
+
         self.field_panel.update()
+        self.property_panel_group.update()
+        self.character_panel_group.update()
+        self.action_panel_group.update()
+
         self.panels.draw(self.image)
+
+        super().update()
+
+    def draw_panels(self, screen):
+        self.property_panel_group.draw(screen)
+        self.action_panel_group.draw(screen)
+        self.character_panel_group.draw(screen)
