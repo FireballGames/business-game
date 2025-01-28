@@ -6,6 +6,7 @@ import random
 import pygame
 import colors
 import config
+from game_events import GameEvent
 from game_resources import GameResources
 from controls.button import Button
 from sprite_groups.main_gui import MainGUI
@@ -52,8 +53,6 @@ class Game:
         self.players = []
         self.current_player_id = None  # Индекс текущего игрока
         self.field = None
-        self.turn = 1
-        self.next_turn = False
 
     @property
     def is_running(self):
@@ -65,6 +64,9 @@ class Game:
 
     @property
     def current_player(self):
+        if self.current_player_id is None:
+            return None
+
         return self.players[self.current_player_id]
 
     def load(self):
@@ -84,6 +86,7 @@ class Game:
         # Игровые параметры
         self.players = [
             Player(
+                0,
                 "Игрок 1",
                 (255, 0, 0),
                 # 0,
@@ -92,6 +95,7 @@ class Game:
                 avatar=GameResources.get('portraits')[0],
             ),
             Player(
+                1,
                 "Игрок 2",
                 (0, 255, 0),
                 # 0,
@@ -101,8 +105,6 @@ class Game:
             ),
         ]
         self.current_player_id = None  # Индекс текущего игрока
-        self.turn = 1
-        self.next_turn = True
 
         # Создаем список клеток для игрового поля
         self.field = Field(GameResources.get('logos'))
@@ -119,6 +121,11 @@ class Game:
         # Создание кнопки
         self.next_turn_button = self.main_panel.turn_panel_group.next_turn_button
         self.next_turn_button.on_click = self.on_next_turn_button_click
+
+        GameEvent.send('START')
+
+        self.current_player_id = 0
+        self.current_player.start_turn()
 
     def start(self):
         """Start game."""
@@ -151,9 +158,11 @@ class Game:
         else:
             player = (self.current_player_id + 1) % 2
         self.current_player_id = player
-        self.turn += 1
 
-        roll = random.randint(1, 6)  # Игрок "попадает" на случайную клетку
+        self.current_player.start_turn()
+
+    def handle_roll(self, roll):
+        logging.debug(f"Бросок {roll} текущего игрока")
         self.current_player.move_token(roll, len(self.field))
         player_pos = self.current_player.token_position
         tile = self.field.get_tile(player_pos)
@@ -173,10 +182,13 @@ class Game:
                     if self.current_player.balance >= tile.rent:
                         self.current_player.pay_rent(owner, tile.rent)
 
-        self.next_turn = False
-
     def on_next_turn_button_click(self):
-        self.next_turn = True
+        player = self.current_player
+
+        if player is None:
+            return
+
+        player.end_turn()
 
     def get_events(self):
         for event in pygame.event.get():
@@ -216,18 +228,41 @@ class Game:
             self.main_panel.process_event(event)
 
     def update(self):
-        # Логика для следующего хода
-        if self.next_turn:
-            self.handle_turn()
-
         if self.window is not None and not self.window.visible:
             self.window = None
 
-        self.main_panel.update_data(self.turn, self.players)
         if self.current_player_id is not None:
-            self.player_panel.render(self.current_player, self.turn)
-            self.tile_panel.render(self.turn, self.players)
+            self.main_panel.update_data(
+                self.current_player,
+                self.current_player.turn,
+                self.players,
+            )
+            self.player_panel.render(self.current_player)
+            self.tile_panel.render(self.current_player.turn, self.players)
 
+            for e in GameEvent.load(self.current_player.last_event_id):
+                if e is not None:
+                    player_id = e.player_id
+                    event_player = self.players[player_id] if player_id is not None else None
+                    if e.event_code == 'START':
+                        logging.debug("Начало игры")
+                    elif e.event_code == 'ROLL':
+                        roll = e.payload.get('roll', 0)
+                        if e.player_id == self.current_player_id:
+                            self.handle_roll(roll)
+                        else:
+                            logging.debug(f"Бросок {roll} игрока {event_player}")
+                    elif e.event_code == 'END_TURN':
+                        if e.player_id == self.current_player_id:
+                            logging.debug("Конец хода текущего игрока")
+                            self.handle_turn()
+                        else:
+                            logging.debug(f"Конец хода игрока {event_player}")
+                    else:
+                        logging.debug(f"Неизвестное событие {e.event_code} для игрока {event_player}")
+                    self.current_player.last_event_id = e.event_id
+                else:
+                    logging.debug(f"Пустое событие {e}")
         self.main_gui.rect = self.screen.get_rect().inflate(0, -18)
 
     def draw(self):

@@ -48,11 +48,13 @@ class MainPanel(pygame.sprite.Sprite):
         self.field_panel.resize(rect.size)
 
     def process_event(self, event):
+        self.action_panel_group.process_event(event)
         self.field_panel.process_event(event)
 
-    def update_data(self, turn, players):
+    def update_data(self, player, turn, players):
         self.field_panel.players = players
         self.turn_panel_group.render(turn, players)
+        self.action_panel_group.update_data(player)
 
     def update(self):
         self.image.fill((0, 0, 255, 0))

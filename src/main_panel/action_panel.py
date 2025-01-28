@@ -16,6 +16,27 @@ class HeaderButton(Button):
         self.hover_color = colors.TRANSPARENT_DARK_GRAY
 
 
+class RollButton(Button):
+    def __init__(self, *groups):
+        super().__init__(
+            *groups,
+            rect=pygame.Rect(48, 0, 134, 34),
+            text="Бросить",
+        )
+        self.label.font = GameResources.get('small_font')
+        self.color = (200, 200, 200, 128)
+        self.hover_color = colors.TRANSPARENT_DARK_GRAY
+
+        self.on_click = self.do_roll
+        self.player = None
+
+    def do_roll(self):
+        if self.player is None:
+            return
+
+        self.player.do_roll()
+
+
 class ActionButton(Button):
     def __init__(self, *groups, rect=None, text=""):
         super().__init__(
@@ -90,6 +111,8 @@ class ActionPanelGroup(pygame.sprite.Group):
 
         self.buttons = pygame.sprite.Group()
 
+        self.roll_button = RollButton(self.buttons)
+
         self.buy_button = BuyButton(self.buttons)
         self.pay_button = PayButton(self.buttons)
         self.play_button = PlayButton(self.buttons)
@@ -105,6 +128,19 @@ class ActionPanelGroup(pygame.sprite.Group):
             rect=pygame.Rect(self.rect.left, self.rect.top + 508, 134, 82),
             text="Кнопка",
         )
+
+    def process_event(self, event):
+        """
+        Проверяет, была ли кнопка нажата мышью.
+
+        :param event: Событие Pygame.
+        :return: True, если кнопка была нажата, иначе False.
+        """
+        for button in self.buttons:
+            button.process_event(event)
+
+    def update_data(self, player):
+        self.roll_button.player = player
 
     def update(self):
         self.empty()

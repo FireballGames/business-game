@@ -1,4 +1,7 @@
 """Объявление класса Player."""
+import random
+from game_events import GameEvent
+
 
 class Player:
     """Данные игрока."""
@@ -10,6 +13,7 @@ class Player:
 
     def __init__(
         self,
+        player_id,
         name: str,
         color,
         token_position=0,
@@ -33,6 +37,7 @@ class Player:
         :param turns_in_jail: Количество ходов, оставшихся до выхода из тюрьмы.
         :param inventory: Дополнительные элементы инвентаря, например, карточки казино.
         """
+        self.player_id = player_id
         self.name = name
         self.color = color
         self.token_position = token_position
@@ -43,6 +48,12 @@ class Player:
         self.in_jail = in_jail
         self.turns_in_jail = turns_in_jail
         self.inventory = inventory if inventory else []
+
+        self.last_event_id = None
+        self.turn = 0
+
+        self.has_rolled = False
+        self.has_finished = True
 
     def move_token(self, steps, board_size):
         """
@@ -101,6 +112,34 @@ class Player:
         """
         self.in_jail = False
         self.turns_in_jail = 0
+
+    def start_turn(self):
+        self.turn += 1
+        self.has_rolled = False
+        self.has_finished = False
+
+    def do_roll(self):
+        if self.has_rolled:
+            return
+
+        roll = random.randint(1, 6)  # Игрок "попадает" на случайную клетку
+        GameEvent.send(
+            'ROLL',
+            self.player_id,
+            {
+                'turn': self.turn,
+                'roll': roll,
+            },
+        )
+        self.has_rolled = True
+
+    def end_turn(self):
+        if not self.has_rolled:
+            return
+
+        GameEvent.send('END_TURN', self.player_id)
+
+        self.has_finished = True
 
     def __repr__(self):
         return f"Player(name={self.name}, balance={self.balance}, " \

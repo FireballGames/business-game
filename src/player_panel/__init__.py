@@ -73,7 +73,7 @@ class PlayerPanel(pygame.sprite.Sprite):
         )
         self.enterprise_label.text = "Список предприятий"
 
-    def render(self, player, turn):
+    def render(self, player):
         """Обновление панели.
 
         Args:
@@ -84,7 +84,7 @@ class PlayerPanel(pygame.sprite.Sprite):
         self.name_label.text = player.name
 
         # Отображение текущего хода
-        self.turn_label.text = f"Ход: {turn}"
+        self.turn_label.text = f"Ход: {player.turn}"
 
         # Show balance
         self.balance_label.text = f"Баланс: {player.balance}"
