@@ -251,11 +251,6 @@ class Game:
         self.next_turn_button.update()
         next_turn_button_group.draw(self.screen)
 
-        # Отображение текущего хода
-        turn_text_font = GameResources.get('big_font')
-        turn_text = turn_text_font.render(f"Ход: {self.turn}", True, colors.BLACK)
-        self.screen.blit(turn_text, (350, 450))
-
         if self.window is not None:
             self.window.draw(self.screen)
 
