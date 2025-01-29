@@ -51,9 +51,9 @@ class MainPanel(pygame.sprite.Sprite):
         self.action_panel_group.process_event(event)
         self.field_panel.process_event(event)
 
-    def update_data(self, player, turn, players):
+    def update_data(self, player, players):
         self.field_panel.players = players
-        self.turn_panel_group.render(turn, players)
+        self.turn_panel_group.render(player.turn, players)
         self.action_panel_group.update_data(player)
 
     def update(self):

@@ -53,7 +53,6 @@ class Player:
         self.turn = 0
 
         self.has_rolled = False
-        self.has_finished = True
 
     def move_token(self, steps, board_size):
         """
@@ -116,7 +115,6 @@ class Player:
     def start_turn(self):
         self.turn += 1
         self.has_rolled = False
-        self.has_finished = False
 
     def do_roll(self):
         if self.has_rolled:
@@ -138,8 +136,6 @@ class Player:
             return
 
         GameEvent.send('END_TURN', self.player_id)
-
-        self.has_finished = True
 
     def __repr__(self):
         return f"Player(name={self.name}, balance={self.balance}, " \

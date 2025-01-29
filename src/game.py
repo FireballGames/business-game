@@ -152,6 +152,8 @@ class Game:
 
     # Обработка хода
     def handle_turn(self):
+        logging.debug("Конец хода")
+
         # Переход хода
         if self.current_player_id is None:
             player = 0
@@ -162,7 +164,8 @@ class Game:
         self.current_player.start_turn()
 
     def handle_roll(self, roll):
-        logging.debug(f"Бросок {roll} текущего игрока")
+        logging.debug(f"Бросок {roll}")
+
         self.current_player.move_token(roll, len(self.field))
         player_pos = self.current_player.token_position
         tile = self.field.get_tile(player_pos)
@@ -183,12 +186,7 @@ class Game:
                         self.current_player.pay_rent(owner, tile.rent)
 
     def on_next_turn_button_click(self):
-        player = self.current_player
-
-        if player is None:
-            return
-
-        player.end_turn()
+        GameEvent.send('CLICK_END_TURN', self.current_player_id)
 
     def get_events(self):
         for event in pygame.event.get():
@@ -227,42 +225,52 @@ class Game:
 
             self.main_panel.process_event(event)
 
+    def process_event(self, event):
+        if event is None:
+            logging.debug(f"Пустое событие {e}")
+            return
+
+        player_id = event.player_id
+        player = self.players[player_id] if player_id is not None else None
+        player_name = player.name if player is not None else None
+
+        is_current_event = player_id == self.current_player_id
+
+        if event.event_code == 'START':
+            logging.debug("Начало игры")
+        elif event.event_code == 'ROLL':
+            roll = event.payload.get('roll', 0)
+            if is_current_event:
+                self.handle_roll(roll)
+            else:
+                logging.debug(f"Бросок {roll} игрока {player_name}")
+        elif event.event_code == 'CLICK_END_TURN':
+            if is_current_event:
+                self.current_player.end_turn()
+            else:
+                logging.debug(f"Нажатие конца хода игрока {player_name}")
+        elif event.event_code == 'END_TURN':
+            if is_current_event:
+                self.handle_turn()
+            else:
+                logging.debug(f"Конец хода игрока {player_name}")
+        else:
+            logging.debug(f"Неизвестное событие {event.event_code} для игрока {player_name}")
+
+        self.current_player.last_event_id = event.event_id
+
     def update(self):
         if self.window is not None and not self.window.visible:
             self.window = None
 
-        if self.current_player_id is not None:
-            self.main_panel.update_data(
-                self.current_player,
-                self.current_player.turn,
-                self.players,
-            )
+        if self.current_player is not None:
+            self.main_panel.update_data(self.current_player, self.players)
             self.player_panel.render(self.current_player)
             self.tile_panel.render(self.current_player.turn, self.players)
 
             for e in GameEvent.load(self.current_player.last_event_id):
-                if e is not None:
-                    player_id = e.player_id
-                    event_player = self.players[player_id] if player_id is not None else None
-                    if e.event_code == 'START':
-                        logging.debug("Начало игры")
-                    elif e.event_code == 'ROLL':
-                        roll = e.payload.get('roll', 0)
-                        if e.player_id == self.current_player_id:
-                            self.handle_roll(roll)
-                        else:
-                            logging.debug(f"Бросок {roll} игрока {event_player}")
-                    elif e.event_code == 'END_TURN':
-                        if e.player_id == self.current_player_id:
-                            logging.debug("Конец хода текущего игрока")
-                            self.handle_turn()
-                        else:
-                            logging.debug(f"Конец хода игрока {event_player}")
-                    else:
-                        logging.debug(f"Неизвестное событие {e.event_code} для игрока {event_player}")
-                    self.current_player.last_event_id = e.event_id
-                else:
-                    logging.debug(f"Пустое событие {e}")
+                self.process_event(e)
+
         self.main_gui.rect = self.screen.get_rect().inflate(0, -18)
 
     def draw(self):
