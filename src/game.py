@@ -259,10 +259,6 @@ class Game:
             return
 
         player_id = event.player_id
-        player = self.players[player_id] if player_id is not None else None
-        player_name = player.name if player is not None else None
-
-        is_current_event = player_id == self.current_player_id
 
         if event.event_code == 'START':
             self.event_start(player_id, event.payload)
@@ -273,6 +269,8 @@ class Game:
         elif event.event_code == 'END_TURN':
             self.event_end_turn(player_id, event.payload)
         else:
+            player = self.get_player(player_id)
+            player_name = player.name if player is not None else None
             logging.debug(f"Неизвестное событие {event.event_code} для игрока {player_name}")
 
         self.current_player.last_event_id = event.event_id
