@@ -49,10 +49,12 @@ class Player:
         self.turns_in_jail = turns_in_jail
         self.inventory = inventory if inventory else []
 
-        self.last_event_id = None
         self.turn = 0
 
         self.has_rolled = False
+
+        self.last_event_id = None
+        self.event_log = []
 
     def move_token(self, steps, board_size):
         """

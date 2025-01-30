@@ -258,6 +258,10 @@ class Game:
             logging.debug(f"Пустое событие {e}")
             return
 
+        current_player = self.current_player
+
+        logging.debug(f"Обрабатываем событие {event.event_id} для игрока {current_player.name}")
+
         player_id = event.player_id
 
         if event.event_code == 'START':
@@ -273,7 +277,9 @@ class Game:
             player_name = player.name if player is not None else None
             logging.debug(f"Неизвестное событие {event.event_code} для игрока {player_name}")
 
-        self.current_player.last_event_id = event.event_id
+        logging.debug(f"Сохраняем событие {event.event_id} для игрока {current_player.name}")
+        current_player.event_log.append(event)
+        current_player.last_event_id = event.event_id
 
     def update(self):
         if self.window is not None and not self.window.visible:
