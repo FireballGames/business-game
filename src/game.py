@@ -64,10 +64,13 @@ class Game:
 
     @property
     def current_player(self):
-        if self.current_player_id is None:
+        return self.get_player(self.current_player_id)
+
+    def get_player(self, player_id):
+        if player_id is None:
             return None
 
-        return self.players[self.current_player_id]
+        return self.players[player_id]
 
     def load(self):
         """Load game data before start."""
@@ -150,41 +153,6 @@ class Game:
         if self.current_player.balance >= tile.price:
             self.current_player.buy_property(tile)
 
-    # Обработка хода
-    def handle_turn(self):
-        logging.debug("Конец хода")
-
-        # Переход хода
-        if self.current_player_id is None:
-            player = 0
-        else:
-            player = (self.current_player_id + 1) % 2
-        self.current_player_id = player
-
-        self.current_player.start_turn()
-
-    def handle_roll(self, roll):
-        logging.debug(f"Бросок {roll}")
-
-        self.current_player.move_token(roll, len(self.field))
-        player_pos = self.current_player.token_position
-        tile = self.field.get_tile(player_pos)
-        if tile.tile_type == "property":
-            if not tile.is_owned():
-                # Клетка свободна, предложение купить
-                self.window = BuyWindow(
-                    self.screen,
-                    GameResources.get('small_font'),
-                    tile,
-                    self.on_buy,
-                )
-            else:
-                # Клетка занята, оплата аренды
-                owner = tile.owner
-                if owner != self.current_player:
-                    if self.current_player.balance >= tile.rent:
-                        self.current_player.pay_rent(owner, tile.rent)
-
     def on_next_turn_button_click(self):
         GameEvent.send('CLICK_END_TURN', self.current_player_id)
 
@@ -225,6 +193,66 @@ class Game:
 
             self.main_panel.process_event(event)
 
+    def event_start(self, player_id, payload):
+        logging.debug("Начало игры")
+
+    def event_roll(self, player_id, payload):
+        roll = payload.get('roll', 0)
+
+        if player_id != self.current_player_id:
+            player = self.get_player(player_id)
+            player_name = player.name if player is not None else None
+            logging.debug(f"Бросок {roll} игрока {player_name}")
+            return
+
+        logging.debug(f"Бросок {roll}")
+
+        self.current_player.move_token(roll, len(self.field))
+        player_pos = self.current_player.token_position
+        tile = self.field.get_tile(player_pos)
+        if tile.tile_type == "property":
+            if not tile.is_owned():
+                # Клетка свободна, предложение купить
+                self.window = BuyWindow(
+                    self.screen,
+                    GameResources.get('small_font'),
+                    tile,
+                    self.on_buy,
+                )
+            else:
+                # Клетка занята, оплата аренды
+                owner = tile.owner
+                if owner != self.current_player:
+                    if self.current_player.balance >= tile.rent:
+                        self.current_player.pay_rent(owner, tile.rent)
+
+    def event_click_end_turn(self, player_id, payload):
+        if player_id != self.current_player_id:
+            player = self.get_player(player_id)
+            player_name = player.name if player is not None else None
+            logging.debug(f"Нажатие конца хода игрока {player_name}")
+            return
+
+        self.current_player.end_turn()
+
+    def event_end_turn(self, player_id, payload):
+        if player_id != self.current_player_id:
+            player = self.get_player(player_id)
+            player_name = player.name if player is not None else None
+            logging.debug(f"Конец хода игрока {player_name}")
+            return
+
+        logging.debug("Конец хода")
+
+        # Переход хода
+        if self.current_player_id is None:
+            new_player_id = 0
+        else:
+            new_player_id = (self.current_player_id + 1) % 2
+
+        self.current_player_id = new_player_id
+        self.current_player.start_turn()
+
     def process_event(self, event):
         if event is None:
             logging.debug(f"Пустое событие {e}")
@@ -237,23 +265,13 @@ class Game:
         is_current_event = player_id == self.current_player_id
 
         if event.event_code == 'START':
-            logging.debug("Начало игры")
+            self.event_start(player_id, event.payload)
         elif event.event_code == 'ROLL':
-            roll = event.payload.get('roll', 0)
-            if is_current_event:
-                self.handle_roll(roll)
-            else:
-                logging.debug(f"Бросок {roll} игрока {player_name}")
+            self.event_roll(player_id, event.payload)
         elif event.event_code == 'CLICK_END_TURN':
-            if is_current_event:
-                self.current_player.end_turn()
-            else:
-                logging.debug(f"Нажатие конца хода игрока {player_name}")
+            self.event_click_end_turn(player_id, event.payload)
         elif event.event_code == 'END_TURN':
-            if is_current_event:
-                self.handle_turn()
-            else:
-                logging.debug(f"Конец хода игрока {player_name}")
+            self.event_end_turn(player_id, event.payload)
         else:
             logging.debug(f"Неизвестное событие {event.event_code} для игрока {player_name}")
 
