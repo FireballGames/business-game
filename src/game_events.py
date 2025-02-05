@@ -11,6 +11,9 @@ import pygame
 from sprite_loader import load_logos, load_portraits
 
 
+logger = logging.getLogger('event')
+
+
 class Event:
     def __init__(self, event_id, event_code, player_id=None, payload=None):
         self.event_id = event_id
@@ -43,15 +46,17 @@ class GameEvent:
     def event_id(self):
         return self.event.event_id
 
+    def __str__(self):
+        return f"GameEvent #{self.inner_event_id}[{self.event_id}]"
+
     def save(self):
         event_id = self.event_id
         inner_event_id = len(self.events)
 
         self.inner_event_id = inner_event_id
-        logging.debug(f"Сохранение события {event_id}[{inner_event_id}]")
         GameEvent.events.append(self)
         GameEvent.__event_by_id[event_id] = inner_event_id
-        logging.debug(f"Событие {event_id}[{inner_event_id}] сохранено")
+        logger.debug(f"Добавлено событие {self}")
 
         return event_id
 
@@ -77,16 +82,15 @@ class GameEvent:
     def load(cls, event_id=None):
         """Load new events."""
         if event_id is None:
-            logging.debug("Загрузка событий начиная c начала")
+            logger.debug("Получение событий начиная c первого")
             inner_event_id = 0
         else:
             inner_event_id = cls.__event_by_id.get(event_id) + 1
-            # logging.debug(f"Загрузка событий начиная c {event_id}({inner_event_id})")
 
         if inner_event_id is None:
             return
 
         for event_data in cls.events[inner_event_id:]:
             event = event_data.event
-            logging.debug(f"Загрузка нового события {event_data.inner_event_id}: {event}")
+            logger.debug(f"Получено событие {event_data}")
             yield event
