@@ -21,6 +21,8 @@ def map_events(game, event):
         pass
     elif event.event_code == 'OFFER_PROPERTY':
         logger.debug(f"Предложение покупки для игрока {player_name}")
+    elif event.event_code == 'PAY_RENT':
+        logger.debug(f"Оплата ренты для игрока {player_name}")
     elif event.event_code == 'CLICK_END_TURN':
         logger.debug(f"Нажатие конца хода игрока {player_name}")
     elif event.event_code == 'END_TURN':
@@ -52,12 +54,7 @@ def event_roll(game, event):
 
     logger.debug(f"Бросок {roll}")
 
-    game.current_player.move_token(roll, len(game.field))
-
-    game.window = RollWindow(
-        game.screen,
-        roll,
-    )
+    game.move_player(roll)
 
 
 def event_close_roll_window(game, event):
@@ -88,21 +85,13 @@ def event_close_roll_window(game, event):
 @current_player_event
 def event_offer_property(game, event):
     logger.debug(f"Предложение покупки {event.payload}")
+    game.offer_property()
 
-    player_pos = game.current_player.token_position
-    tile = game.field.get_tile(player_pos)
-    if tile.tile_type != "property":
-        return
-    if tile.is_owned():
-        return
 
-    # Клетка свободна, предложение купить
-    game.window = BuyWindow(
-        game.screen,
-        GameResources.get('small_font'),
-        tile,
-        game.on_buy,
-    )
+@current_player_event
+def event_pay_rent(game, event):
+    logger.debug(f"Оплата ренты {event.payload}")
+    game.pay_rent()
 
 
 @current_player_event
@@ -136,6 +125,7 @@ EVENT_HANDLERS = {
     'ROLL': event_roll,
     'CLOSE_ROLL_WINDOW': event_close_roll_window,
     'OFFER_PROPERTY': event_offer_property,
+    'PAY_RENT': event_pay_rent,
     'CLICK_END_TURN': event_click_end_turn,
     'END_TURN': event_end_turn,
 }

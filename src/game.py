@@ -15,6 +15,7 @@ from field import Field
 from player import Player
 from main_panel import MainPanel
 from windows.buy_window import BuyWindow
+from windows.rent_window import RentWindow
 from windows.roll_window import RollWindow
 
 
@@ -148,13 +149,6 @@ class Game:
         logging.debug("Выход из игры")
         pygame.quit()
 
-    def on_buy(self):
-        # Игрок покупает предприятие
-        player_pos = self.current_player.token_position
-        tile = self.field.get_tile(player_pos)
-        if self.current_player.balance >= tile.price:
-            self.current_player.buy_property(tile)
-
     def on_next_turn_button_click(self):
         GameEvent.send('CLICK_END_TURN', self.current_player_id)
 
@@ -209,7 +203,7 @@ class Game:
         handler = get_event_handler(event)
         handler(self, event)
 
-        event_logger.debug(f"Сохраняем событие {event} для игрока {current_player.name}")
+        event_logger.debug(f"Сохраняем событие #{event.event_id} для игрока {current_player.name}")
         current_player.event_log.append(event)
         current_player.last_event_id = event.event_id
 
@@ -241,6 +235,103 @@ class Game:
         if self.window is not None:
             self.window.update()
             self.window.draw(self.screen)
+
+    # Window event
+
+    def close_roll_window(self):
+        logging.debug("Закрыто окно броска")
+
+        player_pos = self.current_player.token_position
+        tile = self.field.get_tile(player_pos)
+
+        if tile is None:
+            return
+
+        payload = {
+            'tile_id': tile.tile_id,
+            'tile_type': tile.tile_type,
+            'tile': tile,
+        }
+        if tile.tile_type == "property":
+            if not tile.is_owned():
+                # Клетка свободна, предложение купить
+                GameEvent.send('OFFER_PROPERTY', self.current_player_id, payload)
+            else:
+                # Клетка занята, оплата аренды
+                GameEvent.send('PAY_RENT', self.current_player_id, payload)
+        else:
+            GameEvent.send('UNUSUAL_TILE', self.current_player_id, payload)
+
+    def on_buy(self):
+        # Игрок покупает предприятие
+        player_pos = self.current_player.token_position
+        tile = self.field.get_tile(player_pos)
+
+        if self.current_player.balance < tile.price:
+            return
+
+        self.current_player.buy_property(tile)
+
+    def on_pay_rent(self):
+        # Игрок покупает предприятие
+        player_pos = self.current_player.token_position
+        tile = self.field.get_tile(player_pos)
+
+        if self.current_player.balance < tile.price:
+            return
+
+        self.current_player.pay_rent(tile.owner, tile.rent)
+
+    # Game events
+
+    def move_player(self, roll):
+        self.current_player.move_token(roll, len(self.field))
+
+        self.window = RollWindow(
+            self.screen,
+            roll,
+            on_close=self.close_roll_window,
+        )
+
+    def offer_property(self):
+        player_pos = self.current_player.token_position
+        tile = self.field.get_tile(player_pos)
+
+        if tile.tile_type != "property":
+            return
+
+        if tile.is_owned():
+            return
+
+        # Клетка свободна, предложение купить
+        self.window = BuyWindow(
+            self.screen,
+            GameResources.get('small_font'),
+            tile,
+            self.on_buy,
+        )
+
+    def pay_rent(self):
+        player_pos = self.current_player.token_position
+        tile = self.field.get_tile(player_pos)
+
+        if tile.tile_type != "property":
+            return
+
+        if not tile.is_owned():
+            return
+
+        if tile.owner == self.current_player:
+            return
+
+        # Клетка занята, оплата аренды
+        self.window = RentWindow(
+            self.screen,
+            tile,
+            on_close=self.on_pay_rent,
+        )
+
+    # Run game
 
     def __call__(self, *args, **kwargs):
         self.load()

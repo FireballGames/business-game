@@ -22,7 +22,7 @@ class Event:
         self.payload = payload
 
     def __str__(self):
-        return f"<Event {self.event_code}[{self.event_id}] ({self.payload})>"
+        return f"<Event #{self.event_id}[{self.event_code}]: {self.payload}>"
 
 
 class GameEvent:
