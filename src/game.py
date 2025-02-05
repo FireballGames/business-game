@@ -223,18 +223,52 @@ class Game:
         if tile.tile_type == "property":
             if not tile.is_owned():
                 # Клетка свободна, предложение купить
-                self.window = BuyWindow(
-                    self.screen,
-                    GameResources.get('small_font'),
-                    tile,
-                    self.on_buy,
-                )
+                GameEvent.send('OFFER_PROPERTY', self.current_player_id, {'tile': tile})
+                # self.window = BuyWindow(
+                #     self.screen,
+                #     GameResources.get('small_font'),
+                #     tile,
+                #     self.on_buy,
+                # )
             else:
                 # Клетка занята, оплата аренды
                 owner = tile.owner
                 if owner != self.current_player:
                     if self.current_player.balance >= tile.rent:
                         self.current_player.pay_rent(owner, tile.rent)
+        else:
+            GameEvent.send(
+                'UNUSUAL_TILE',
+                self.current_player_id,
+                {
+                    'tile_type': tile.tile_type,
+                    'tile': tile,
+                },
+            )
+
+    def event_offer_property(self, player_id, payload):
+        if player_id != self.current_player_id:
+            player = self.get_player(player_id)
+            player_name = player.name if player is not None else None
+            logging.debug(f"Предложение покупки для игрока {player_name}")
+            return
+
+        logging.debug(f"Предложение покупки {payload}")
+
+        player_pos = self.current_player.token_position
+        tile = self.field.get_tile(player_pos)
+        if tile.tile_type != "property":
+            return
+        if tile.is_owned():
+            return
+
+        # Клетка свободна, предложение купить
+        self.window = BuyWindow(
+            self.screen,
+            GameResources.get('small_font'),
+            tile,
+            self.on_buy,
+        )
 
     def event_click_end_turn(self, player_id, payload):
         if player_id != self.current_player_id:
@@ -280,6 +314,8 @@ class Game:
             self.event_roll(player_id, event.payload)
         elif event.event_code == 'CLOSE_ROLL_WINDOW':
             self.event_close_roll_window(player_id, event.payload)
+        elif event.event_code == 'OFFER_PROPERTY':
+            self.event_offer_property(player_id, event.payload)
         elif event.event_code == 'CLICK_END_TURN':
             self.event_click_end_turn(player_id, event.payload)
         elif event.event_code == 'END_TURN':
