@@ -10,10 +10,11 @@ from game_events import GameEvent
 from game_resources import GameResources
 from controls.button import Button
 from sprite_groups.main_gui import MainGUI
-from buy_window import BuyWindow
 from field import Field
 from player import Player
 from main_panel import MainPanel
+from windows.buy_window import BuyWindow
+from windows.roll_window import RollWindow
 
 
 class Game:
@@ -181,7 +182,7 @@ class Game:
             #     self.stop()
 
             if self.window is not None:
-                self.window.update(event)
+                self.window.process_event(event)
                 continue
 
             # Проверка нажатия кнопки мышью
@@ -208,6 +209,15 @@ class Game:
         logging.debug(f"Бросок {roll}")
 
         self.current_player.move_token(roll, len(self.field))
+
+        self.window = RollWindow(
+            self.screen,
+            roll,
+        )
+
+    def event_close_roll_window(self, player_id, payload):
+        logging.debug("Закрыто окно броска")
+
         player_pos = self.current_player.token_position
         tile = self.field.get_tile(player_pos)
         if tile.tile_type == "property":
@@ -268,6 +278,8 @@ class Game:
             self.event_start(player_id, event.payload)
         elif event.event_code == 'ROLL':
             self.event_roll(player_id, event.payload)
+        elif event.event_code == 'CLOSE_ROLL_WINDOW':
+            self.event_close_roll_window(player_id, event.payload)
         elif event.event_code == 'CLICK_END_TURN':
             self.event_click_end_turn(player_id, event.payload)
         elif event.event_code == 'END_TURN':
@@ -307,6 +319,7 @@ class Game:
         self.main_panel.draw_panels(self.screen)
 
         if self.window is not None:
+            self.window.update()
             self.window.draw(self.screen)
 
     def __call__(self, *args, **kwargs):
