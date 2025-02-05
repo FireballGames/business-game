@@ -6,6 +6,7 @@ import random
 import pygame
 import colors
 import config
+from event_handlers import get_event_handler
 from game_events import GameEvent
 from game_resources import GameResources
 from controls.button import Button
@@ -194,138 +195,21 @@ class Game:
 
             self.main_panel.process_event(event)
 
-    def event_start(self, player_id, payload):
-        logging.debug("Начало игры")
-
-    def event_roll(self, player_id, payload):
-        roll = payload.get('roll', 0)
-
-        if player_id != self.current_player_id:
-            player = self.get_player(player_id)
-            player_name = player.name if player is not None else None
-            logging.debug(f"Бросок {roll} игрока {player_name}")
-            return
-
-        logging.debug(f"Бросок {roll}")
-
-        self.current_player.move_token(roll, len(self.field))
-
-        self.window = RollWindow(
-            self.screen,
-            roll,
-        )
-
-    def event_close_roll_window(self, player_id, payload):
-        logging.debug("Закрыто окно броска")
-
-        player_pos = self.current_player.token_position
-        tile = self.field.get_tile(player_pos)
-        if tile.tile_type == "property":
-            if not tile.is_owned():
-                # Клетка свободна, предложение купить
-                GameEvent.send('OFFER_PROPERTY', self.current_player_id, {'tile': tile})
-                # self.window = BuyWindow(
-                #     self.screen,
-                #     GameResources.get('small_font'),
-                #     tile,
-                #     self.on_buy,
-                # )
-            else:
-                # Клетка занята, оплата аренды
-                owner = tile.owner
-                if owner != self.current_player:
-                    if self.current_player.balance >= tile.rent:
-                        self.current_player.pay_rent(owner, tile.rent)
-        else:
-            GameEvent.send(
-                'UNUSUAL_TILE',
-                self.current_player_id,
-                {
-                    'tile_type': tile.tile_type,
-                    'tile': tile,
-                },
-            )
-
-    def event_offer_property(self, player_id, payload):
-        if player_id != self.current_player_id:
-            player = self.get_player(player_id)
-            player_name = player.name if player is not None else None
-            logging.debug(f"Предложение покупки для игрока {player_name}")
-            return
-
-        logging.debug(f"Предложение покупки {payload}")
-
-        player_pos = self.current_player.token_position
-        tile = self.field.get_tile(player_pos)
-        if tile.tile_type != "property":
-            return
-        if tile.is_owned():
-            return
-
-        # Клетка свободна, предложение купить
-        self.window = BuyWindow(
-            self.screen,
-            GameResources.get('small_font'),
-            tile,
-            self.on_buy,
-        )
-
-    def event_click_end_turn(self, player_id, payload):
-        if player_id != self.current_player_id:
-            player = self.get_player(player_id)
-            player_name = player.name if player is not None else None
-            logging.debug(f"Нажатие конца хода игрока {player_name}")
-            return
-
-        self.current_player.end_turn()
-
-    def event_end_turn(self, player_id, payload):
-        if player_id != self.current_player_id:
-            player = self.get_player(player_id)
-            player_name = player.name if player is not None else None
-            logging.debug(f"Конец хода игрока {player_name}")
-            return
-
-        logging.debug("Конец хода")
-
-        # Переход хода
-        if self.current_player_id is None:
-            new_player_id = 0
-        else:
-            new_player_id = (self.current_player_id + 1) % 2
-
-        self.current_player_id = new_player_id
-        self.current_player.start_turn()
-
     def process_event(self, event):
-        if event is None:
-            logging.debug(f"Пустое событие {e}")
-            return
-
         current_player = self.current_player
 
-        logging.debug(f"Обрабатываем событие {event.event_id} для игрока {current_player.name}")
+        event_logger = logging.getLogger('event')
 
-        player_id = event.player_id
+        event_logger.debug(f"Обрабатываем событие {event} для игрока {current_player.name}")
 
-        if event.event_code == 'START':
-            self.event_start(player_id, event.payload)
-        elif event.event_code == 'ROLL':
-            self.event_roll(player_id, event.payload)
-        elif event.event_code == 'CLOSE_ROLL_WINDOW':
-            self.event_close_roll_window(player_id, event.payload)
-        elif event.event_code == 'OFFER_PROPERTY':
-            self.event_offer_property(player_id, event.payload)
-        elif event.event_code == 'CLICK_END_TURN':
-            self.event_click_end_turn(player_id, event.payload)
-        elif event.event_code == 'END_TURN':
-            self.event_end_turn(player_id, event.payload)
-        else:
-            player = self.get_player(player_id)
-            player_name = player.name if player is not None else None
-            logging.debug(f"Неизвестное событие {event.event_code} для игрока {player_name}")
+        if event is None:
+            event_logger.debug(f"Пустое событие {event}")
+            return
 
-        logging.debug(f"Сохраняем событие {event.event_id} для игрока {current_player.name}")
+        handler = get_event_handler(event)
+        handler(self, event)
+
+        event_logger.debug(f"Сохраняем событие {event} для игрока {current_player.name}")
         current_player.event_log.append(event)
         current_player.last_event_id = event.event_id
 
