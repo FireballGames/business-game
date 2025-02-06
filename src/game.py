@@ -48,6 +48,8 @@ class Game:
 
         # Создание кнопки
         self.next_turn_button = None
+        self.buy_property_button = None
+
         self.window = None
 
         # clock = pygame.time.Clock()
@@ -127,6 +129,9 @@ class Game:
         # Создание кнопки
         self.next_turn_button = self.main_panel.turn_panel_group.next_turn_button
         self.next_turn_button.on_click = self.on_next_turn_button_click
+
+        self.buy_property_button = self.main_panel.action_panel_group.buy_button
+        self.buy_property_button.on_click = self.offer_property
 
         GameEvent.send('START')
 
